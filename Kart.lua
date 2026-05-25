@@ -1,4 +1,4 @@
-Kart = {
+local Kart = {
 	x = 0,
 	y = 0,
 	velocity = 0,
@@ -9,18 +9,20 @@ Kart = {
 	imagepath = "assets/gokart3.png",
 	image = nil,
 }
-function Kart:new(o, x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, imagepath)
-	o = o or {}
+
+Kart.__index = Kart
+
+function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, imagepath)
+	o = {}
 	setmetatable(o, self)
-	self.__index = self
-	self.x = x or 0
-	self.y = y or 0
-	self.velocity = velocity or 0
-	self.transitionSpeed = transitionSpeed or 5
-	self.theta = theta or 0
-	self.dtheta = dtheta or (15 / (2 * 3.14))
-	self.MaxVelocity = MaxVelocity or 10
-	self.image = love.graphics.newImage(imagepath or "assets/gokart3.png")
+	o.x = x or 0
+	o.y = y or 0
+	o.velocity = velocity or 0
+	o.transitionSpeed = transitionSpeed or 5
+	o.theta = theta or 0
+	o.dtheta = dtheta or (15 / (2 * 3.14))
+	o.MaxVelocity = MaxVelocity or 10
+	o.image = love.graphics.newImage(imagepath or "assets/gokart3.png")
 	return o
 end
 
@@ -51,6 +53,11 @@ function Kart:update(dt)
 			self.velocity = self.velocity - 2 * self.transitionSpeed * dt
 		end
 	end
+
+    if love.keyboard.isDown("space") then
+        
+    end
+
 	if self.velocity > 0 then
 		self.velocity = math.min(self.velocity, self.MaxVelocity)
 	elseif self.velocity < 0 then
@@ -60,10 +67,16 @@ function Kart:update(dt)
 	self.y = self.y + self.velocity * math.sin(self.theta)
 end
 
+function Kart:shoot() 
+    print("x " .. self.x .. "y " .. self.y)
+    
+    -- self.weapon:fire()
+end
+
 function Kart:draw()
 	love.graphics.draw(self.image, self.x, self.y, self.theta)
 end
 
 return {
-	Kart = Kart,
+    Kart = Kart
 }

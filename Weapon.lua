@@ -11,8 +11,8 @@ Weapon = {
 function Weapon:new(o, type)
 	o = o or {}
 	setmetatable(o, self)
-	self.__index = self
-    self.type = type or weaponType.GUN
+	o.__index = self
+    o.type = type or weaponType.GUN
 	return o
 end
 
@@ -31,13 +31,13 @@ Bullet = {
 function Bullet:new(o, x, y, theta, type, imagePath)
 	o = o or {}
 	setmetatable(o, self)
-	self.__index = self
-    self.x = x
-    self.y = y
-    self.theta = theta
-    self.type = type or weaponType.GUN
-    self.imagePath = imagePath or "assets/bullet.png"
-    self.image = love.graphics.newImage(image)
+	o.__index = self
+    o.x = x
+    o.y = y
+    o.theta = theta
+    o.type = type or weaponType.GUN
+    o.imagePath = imagePath or "assets/bullet.png"
+    o.image = love.graphics.newImage(image)
 	return o
 end
 
