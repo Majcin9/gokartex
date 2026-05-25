@@ -9,13 +9,13 @@ MaxVelocity = 10
 
 function love.load()
 	-- love.window.setFullscreen(true, "desktop")
-	k = kart.Kart:new(x, y)
-    k2 = kart.Kart:new(100, 10)
+	-- k = kart.Kart:new(x, y)
+    k2 = kart.Kart:new(100, 100)
 	b = box.Box:new(nil)
 end
 
 function love.update(dt)
-	k:update(dt)
+	-- k:update(dt)
     k2:update(dt)
     if love.keyboard.isDown("e") then
         k2:shoot()
@@ -23,7 +23,7 @@ function love.update(dt)
 end
 
 function love.draw()
-	k:draw()
+	-- k:draw()
     k2:draw()
 	b:draw()
 end

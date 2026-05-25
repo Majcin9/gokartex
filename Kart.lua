@@ -82,7 +82,14 @@ function Kart:shoot()
 end
 
 function Kart:draw()
-	love.graphics.draw(self.image, self.x, self.y, self.theta)
+    local width = self.image:getWidth()
+    local height = self.image:getHeight()
+    local radius = math.sqrt((width * width) + (height * height))/2
+    local newx = self.x + radius*math.cos((5*3.14/4) + self.theta)
+    local newy = self.y + radius*math.sin((5*3.14/4) + self.theta)
+    print("r " .. radius .. " x " .. newx .. " y " .. newy)
+
+	love.graphics.draw(self.image, newx, newy, self.theta)
     if bu ~= nil then
         bu:draw(self.theta)
     end
