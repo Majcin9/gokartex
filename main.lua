@@ -41,5 +41,6 @@ function love.update(dt)
 end
 
 function love.draw()
-	love.graphics.draw(image, x, y, theta)
+	--love.graphics.draw(image, x, y, theta)
+	k:draw()
 end

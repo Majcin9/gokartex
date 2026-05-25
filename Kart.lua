@@ -1,5 +1,14 @@
-Kart = { x = 0, y = 0, velocity = 0, transitionSpeed = 5, theta = 0, dtheta = 15 / (2 * 3.14), MaxVelocity = 10 }
-function Kart:new(o, x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity)
+Kart = {
+	x = 0,
+	y = 0,
+	velocity = 0,
+	transitionSpeed = 5,
+	theta = 0,
+	dtheta = 15 / (2 * 3.14),
+	MaxVelocity = 10,
+	imagepath = "assets/gokart3.png",
+}
+function Kart:new(o, x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, imagepath)
 	o = o or {}
 	setmetatable(o, self)
 	self.__index = self
@@ -10,6 +19,7 @@ function Kart:new(o, x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity
 	self.theta = theta or 0
 	self.dtheta = dtheta or (15 / (2 * 3.14))
 	self.MaxVelocity = MaxVelocity or 10
+	self.image = love.graphics.newImage(imagepath or "assets/gokart3.png")
 	return o
 end
 
@@ -39,6 +49,10 @@ function Kart:update(dt)
 	y = y + velocity * math.sin(theta)
 end
 
+function Kart:draw()
+	love.graphics.draw(image, x, y, theta)
+end
+
 return {
-    Kart = Kart
+	Kart = Kart,
 }
