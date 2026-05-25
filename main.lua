@@ -5,7 +5,8 @@ transitionSpeed = 5
 theta = 0
 dtheta = 15 / (2 * 3.14)
 MaxVelocity = 10
-kart = kart.Kart:new(nil, x, y)
+
+k = kart.Kart:new(nil, x, y)
 
 function love.load()
 	love.window.setFullscreen(true, "desktop")
@@ -13,7 +14,7 @@ function love.load()
 end
 
 function love.update(dt)
-	kart.kart:update(dt)
+	k:update(dt)
 	if love.keyboard.isDown("left") then
 		theta = theta - dtheta * dt
 	end

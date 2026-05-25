@@ -1,9 +1,7 @@
 Kart = { x = 0, y = 0, velocity = 0, transitionSpeed = 5, theta = 0, dtheta = 15 / (2 * 3.14), MaxVelocity = 10 }
 function Kart:new(o, x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity)
 	o = o or {}
-	print("AA")
 	setmetatable(o, self)
-	print("BB")
 	self.__index = self
 	self.x = x or 0
 	self.y = y or 0
@@ -40,3 +38,7 @@ function Kart:update(dt)
 	x = x + velocity * math.cos(theta)
 	y = y + velocity * math.sin(theta)
 end
+
+return {
+    Kart = Kart
+}
