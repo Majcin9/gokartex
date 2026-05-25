@@ -1,19 +1,21 @@
-kart = require("Kart")
-x, y = 400, 300
-velocity = 0
-transitionSpeed = 5
-theta = 0
-dtheta = 15 / (2 * 3.14)
-MaxVelocity = 10
-kart = kart.Kart:new(nil, x, y)
-
-function love.load()
-	love.window.setFullscreen(true, "desktop")
-	image = love.graphics.newImage("assets/gokart3.png")
+Kart = { x = 0, y = 0, velocity = 0, transitionSpeed = 5, theta = 0, dtheta = 15 / (2 * 3.14), MaxVelocity = 10 }
+function Kart:new(o, x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity)
+	o = o or {}
+	print("AA")
+	setmetatable(o, self)
+	print("BB")
+	self.__index = self
+	self.x = x or 0
+	self.y = y or 0
+	self.velocity = velocity or 0
+	self.transitionSpeed = transitionSpeed or 5
+	self.theta = theta or 0
+	self.dtheta = dtheta or (15 / (2 * 3.14))
+	self.MaxVelocity = MaxVelocity or 10
+	return o
 end
 
-function love.update(dt)
-	kart.kart:update(dt)
+function Kart:update(dt)
 	if love.keyboard.isDown("left") then
 		theta = theta - dtheta * dt
 	end
@@ -37,8 +39,4 @@ function love.update(dt)
 	velocity = math.min(velocity, MaxVelocity)
 	x = x + velocity * math.cos(theta)
 	y = y + velocity * math.sin(theta)
-end
-
-function love.draw()
-	love.graphics.draw(image, x, y, theta)
 end
