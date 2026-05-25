@@ -1,3 +1,5 @@
+weapons = require("Weapon")
+
 local Kart = {
 	x = 0,
 	y = 0,
@@ -8,6 +10,7 @@ local Kart = {
 	MaxVelocity = 10,
 	imagepath = "assets/gokart3.png",
 	image = nil,
+    weapon = nil
 }
 
 Kart.__index = Kart
@@ -22,6 +25,7 @@ function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, i
 	o.theta = theta or 0
 	o.dtheta = dtheta or (15 / (2 * 3.14))
 	o.MaxVelocity = MaxVelocity or 10
+    o.weapon = weapons.Weapon:new()
 	o.image = love.graphics.newImage(imagepath or "assets/gokart3.png")
 	return o
 end
@@ -65,16 +69,23 @@ function Kart:update(dt)
 	end
 	self.x = self.x + self.velocity * math.cos(self.theta)
 	self.y = self.y + self.velocity * math.sin(self.theta)
+    if bu ~= nil then
+        bu:update(self.theta)
+    end
 end
+
 
 function Kart:shoot() 
     print("x " .. self.x .. "y " .. self.y)
     
-    -- self.weapon:fire()
+    bu = self.weapon:fire(self.x, self.y)
 end
 
 function Kart:draw()
 	love.graphics.draw(self.image, self.x, self.y, self.theta)
+    if bu ~= nil then
+        bu:draw(self.theta)
+    end
 end
 
 return {
