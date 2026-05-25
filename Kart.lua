@@ -47,7 +47,7 @@ function Kart:update(dt)
 	else
 		if self.velocity < 0 then
 			self.velocity = self.velocity + 2 * self.transitionSpeed * dt
-		elseif velocity > 0 then
+		elseif self.velocity > 0 then
 			self.velocity = self.velocity - 2 * self.transitionSpeed * dt
 		end
 	end
