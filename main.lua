@@ -2,7 +2,8 @@ x, y = 400, 300
 velocity = 0
 transitionSpeed = 5
 theta = 0
-dtheta = 10 / (2 * 3.14)
+dtheta = 15 / (2 * 3.14)
+MaxVelocity = 10
 
 function love.load()
 	love.window.setFullscreen(true, "desktop")
@@ -30,6 +31,7 @@ function love.update(dt)
 			end
 		end
 	end
+	velocity = math.min(velocity, MaxVelocity)
 	x = x + velocity * math.cos(theta)
 	y = y + velocity * math.sin(theta)
 end
