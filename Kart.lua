@@ -7,6 +7,7 @@ Kart = {
 	dtheta = 15 / (2 * 3.14),
 	MaxVelocity = 10,
 	imagepath = "assets/gokart3.png",
+    image = nil
 }
 function Kart:new(o, x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, imagepath)
 	o = o or {}
@@ -53,9 +54,9 @@ function Kart:update(dt)
 end
 
 function Kart:draw()
-	love.graphics.draw(image, x, y, theta)
+	love.graphics.draw(self.image, x, y, theta)
 end
 
 return {
-	Kart = Kart,
+	Kart = Kart
 }
