@@ -2,7 +2,7 @@ x, y = 400, 300
 
 function love.load()
 	love.window.setFullscreen(true, "desktop")
-	image = love.graphics.newImage("assets/love-ball.png")
+	image = love.graphics.newImage("assets/gokart3.png")
 end
 
 function love.update(dt)
