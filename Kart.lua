@@ -70,7 +70,7 @@ function Kart:update(dt)
 	self.x = self.x + self.velocity * math.cos(self.theta)
 	self.y = self.y + self.velocity * math.sin(self.theta)
     if bu ~= nil then
-        bu:update(self.theta)
+        bu:update()
     end
 end
 
@@ -78,7 +78,7 @@ end
 function Kart:shoot() 
     print("x " .. self.x .. "y " .. self.y)
     
-    bu = self.weapon:fire(self.x, self.y)
+    bu = self.weapon:fire(self.x, self.y, self.theta)
 end
 
 function Kart:draw()

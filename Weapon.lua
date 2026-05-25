@@ -18,13 +18,14 @@ function Weapon:new(type)
 	return w
 end
 
-function Weapon:fire(x, y)
-    return Bullet:new(x, y)
+function Weapon:fire(x, y, theta)
+    return Bullet:new(x, y, theta)
 end
 
 Bullet = {
     x = 10,
     y = 10,
+    theta = 0,
     type = nil,
     imagePath = "assets/bullet.png",
     image = nil
@@ -38,20 +39,20 @@ function Bullet:new(x, y, theta, type, imagePath)
 	bull.__index = self
     bull.x = x
     bull.y = y
-    bull.theta = theta or 0
+    bull.theta = theta
     bull.type = type or weaponType.GUN
     bull.imagePath = imagePath or "assets/bullet.png"
     bull.image = love.graphics.newImage(bull.imagePath)
 	return bull
 end
 
-function Bullet:update(theta)
-    self.x = self.x + self.type.speed * math.cos(theta)
-    self.y = self.y + self.type.speed * math.sin(theta)
+function Bullet:update()
+    self.x = self.x + self.type.speed * math.cos(self.theta)
+    self.y = self.y + self.type.speed * math.sin(self.theta)
 end
 
-function Bullet:draw(theta)
-    love.graphics.draw(self.image, self.x, self.y, theta, 0.1, 0.1)
+function Bullet:draw()
+    love.graphics.draw(self.image, self.x, self.y, self.theta, 0.1, 0.1)
 end
 
 return {
