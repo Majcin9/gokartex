@@ -7,7 +7,7 @@ Kart = {
 	dtheta = 15 / (2 * 3.14),
 	MaxVelocity = 10,
 	imagepath = "assets/gokart3.png",
-    image = nil
+	image = nil,
 }
 function Kart:new(o, x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, imagepath)
 	o = o or {}
@@ -26,44 +26,44 @@ end
 
 function Kart:update(dt)
 	if love.keyboard.isDown("left") then
-		theta = theta - dtheta * dt
+		self.theta = self.theta - self.dtheta * dt
 	end
 	if love.keyboard.isDown("right") then
-		theta = theta + dtheta * dt
+		self.theta = self.theta + self.dtheta * dt
 	end
 
 	if love.keyboard.isDown("up") then
-        if velocity < 0 then
-            velocity = velocity + 3*transitionSpeed * dt
-        else 
-            velocity = velocity + transitionSpeed * dt
-        end
+		if self.velocity < 0 then
+			self.velocity = self.velocity + 3 * self.transitionSpeed * dt
+		else
+			self.velocity = self.velocity + self.transitionSpeed * dt
+		end
 	elseif love.keyboard.isDown("down") then
-        if velocity > 0 then
-            velocity = velocity - 3*transitionSpeed * dt
-        else 
-            velocity = velocity - transitionSpeed * dt
-        end
+		if self.velocity > 0 then
+			self.velocity = self.velocity - 3 * self.transitionSpeed * dt
+		else
+			self.velocity = self.velocity - self.transitionSpeed * dt
+		end
 	else
-        if velocity < 0 then
-            velocity = velocity + 2*transitionSpeed * dt
-        elseif velocity > 0 then
-            velocity = velocity - 2*transitionSpeed * dt
-        end
-    end
-    if velocity > 0 then
-        velocity = math.min(velocity, MaxVelocity)
-    elseif velocity < 0 then
-        velocity = math.max(velocity, -MaxVelocity)
-    end
-	x = x + velocity * math.cos(theta)
-	y = y + velocity * math.sin(theta)
+		if self.velocity < 0 then
+			self.velocity = self.velocity + 2 * self.transitionSpeed * dt
+		elseif velocity > 0 then
+			self.velocity = self.velocity - 2 * self.transitionSpeed * dt
+		end
+	end
+	if self.velocity > 0 then
+		self.velocity = math.min(self.velocity, self.MaxVelocity)
+	elseif self.velocity < 0 then
+		self.velocity = math.max(self.velocity, -self.MaxVelocity)
+	end
+	self.x = self.x + self.velocity * math.cos(self.theta)
+	self.y = self.y + self.velocity * math.sin(self.theta)
 end
 
 function Kart:draw()
-	love.graphics.draw(self.image, x, y, theta)
+	love.graphics.draw(self.image, self.x, self.y, self.theta)
 end
 
 return {
-	Kart = Kart
+	Kart = Kart,
 }
