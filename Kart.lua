@@ -33,15 +33,22 @@ function Kart:update(dt)
 	end
 
 	if love.keyboard.isDown("up") then
-		velocity = velocity + transitionSpeed * dt
-		-- y = y - 100 * dt
+        if velocity < 0 then
+            velocity = velocity + 3*transitionSpeed * dt
+        else 
+            velocity = velocity + transitionSpeed * dt
+        end
 	elseif love.keyboard.isDown("down") then
-        velocity = velocity - transitionSpeed * dt
+        if velocity > 0 then
+            velocity = velocity - 3*transitionSpeed * dt
+        else 
+            velocity = velocity - transitionSpeed * dt
+        end
 	else
         if velocity < 0 then
-            velocity = velocity + transitionSpeed * dt
+            velocity = velocity + 2*transitionSpeed * dt
         elseif velocity > 0 then
-            velocity = velocity - transitionSpeed * dt
+            velocity = velocity - 2*transitionSpeed * dt
         end
     end
     if velocity > 0 then
