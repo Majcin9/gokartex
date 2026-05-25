@@ -21,7 +21,7 @@ function love.update(dt)
 		-- y = y - 100 * dt
 	else
 		if love.keyboard.isDown("down") then
-			velocity = velocity - transisionSpeed * dt
+			velocity = velocity - transitionSpeed * dt
 			y = y + 100 * dt
 		else
 			velocity = velocity - transitionSpeed * dt
