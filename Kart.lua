@@ -33,9 +33,15 @@ end
 function Kart:update(dt)
 	if love.keyboard.isDown("left") then
 		self.theta = self.theta - self.dtheta * dt
+        if self.theta < 0 then
+            self.theta = 2 * 3.14
+        end
 	end
 	if love.keyboard.isDown("right") then
 		self.theta = self.theta + self.dtheta * dt
+        if self.theta > 2*3.14 then
+            self.theta = 0
+        end
 	end
 
 	if love.keyboard.isDown("up") then
@@ -95,7 +101,7 @@ function Kart:draw()
 end
 
 function Kart:getPosString()
-    return self.x .. " " .. self.y
+    return self.x .. " " .. self.y .. " " .. tonumber(self.theta*1000)
 end
 
 return {

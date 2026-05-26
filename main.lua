@@ -49,8 +49,8 @@ function love.draw()
     -- k2:draw()
     for id,player in ipairs(playersCoords) do
         -- x is player[2] y is player[3] (for some reason)
-        print(id, player[2], player[3])
-        love.graphics.draw(k2.image, player[2], player[3])
+        print(id, player[2], player[3], player[4]/1000)
+        love.graphics.draw(k2.image, player[2], player[3], player[4]/1000)
     end
 	b:draw()
 end

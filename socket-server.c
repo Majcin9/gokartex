@@ -14,6 +14,7 @@ typedef struct player_t {
     int id;
     int x;
     int y;
+    int theta;
     int taken;
 } Player;
 
@@ -39,27 +40,34 @@ connection_handler(void *input) {
 		client_message[read_size] = '\0';
         char* x;
         char* y;
+        char* theta;
         x = strtok(client_message, " ");
-        if (x != NULL) {
-            y = strtok(NULL, " ");
+        if (x == NULL) {
+            break;
         }
+        y = strtok(NULL, " ");
+        if (y == NULL) break;
+        theta = strtok(NULL, " ");
+        if (theta == NULL) break;
         int x_parsed = -1; 
         int y_parsed = -1;
-        if (x != NULL && y != NULL) {
-            x_parsed = atoi(x);
-            y_parsed = atoi(y);
-        }    
+        int theta_parsed = -1;
+
+        x_parsed = atoi(x);
+        y_parsed = atoi(y);
+        theta_parsed = atoi(theta);
         // ignoring possibility of overflow or invalid read for now
         
         players[id].x = x_parsed;
         players[id].y = y_parsed;
+        players[id].theta = theta_parsed;
 
-        printf("id: %d, x: %d, y: %d\n", players[id].id, players[id].x, players[id].y);
-        if (x_parsed == -1  || y_parsed == -1) {
+        // printf("id: %d, x: %d, y: %d\n", players[id].id, players[id].x, players[id].y);
+        if (x_parsed == -1  || y_parsed == -1 || theta_parsed == -1) {
             break;
         }
         for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
-            dprintf(sock, "%d %d %d\n", p, players[p].x, players[p].y);
+            dprintf(sock, "%d %d %d %d\n", p, players[p].x, players[p].y, players[p].theta);
         }
         dprintf(sock, "\n");
 		
