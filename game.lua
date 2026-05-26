@@ -37,8 +37,9 @@ function Game:networking()
 		end
 	end
 end
+
 function Game:load()
-	self.mainKart = kart.Kart:new(100, 100)
+	self.mainKart = kart.Kart:new(100, 100, true)
 	table.insert(self.boxes, box.Box:new(nil))
 
 	self.sock = socket.connect("localhost", 5000)
@@ -58,9 +59,8 @@ function Game:draw()
 	-- k:draw()
 	-- k2:draw()
 	for id, player in ipairs(self.players) do
-		-- x is player[2] y is player[3] (for some reason)
 		print(player.id, player.x, player.y, player.theta / 1000)
-		love.graphics.draw(self.mainKart.image, player.x, player.y, player.theta / 1000)
+        player:draw()
 	end
 	self.boxes[1]:draw()
 end

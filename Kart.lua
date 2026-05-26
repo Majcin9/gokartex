@@ -10,16 +10,18 @@ local Kart = {
 	MaxVelocity = 10,
 	imagepath = "assets/gokart3.png",
 	image = nil,
-    weapon = nil
+    weapon = nil,
+    drivable = false,
 }
 
 Kart.__index = Kart
 
-function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, imagepath)
+function Kart:new(x, y, drivable, velocity, transitionSpeed, theta, dtheta, MaxVelocity, imagepath)
 	o = {}
 	setmetatable(o, self)
 	o.x = x or 0
 	o.y = y or 0
+    o.drivable = drivable or false
 	o.velocity = velocity or 0
 	o.transitionSpeed = transitionSpeed or 5
 	o.theta = theta or 0
@@ -31,6 +33,9 @@ function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, i
 end
 
 function Kart:update(dt)
+    if (not self.drivable) then
+        return
+    end
 	if love.keyboard.isDown("left") then
 		self.theta = self.theta - self.dtheta * dt
         if self.theta < 0 then
