@@ -2,9 +2,10 @@ kart = require("Kart")
 box = require("Box")
 socket = require("socket")
 bump = require("bump")
+player = require("player")
 
 Game = {
-	playersCoords = {},
+	players = {},
 	mainKart = nil,
 	boxes = {},
 	sock = nil,
@@ -24,13 +25,14 @@ function Game:networking()
 		self.sock:send(self.mainKart:getPosString())
 
 		local playerRaw = self.sock:receive("*l")
-		self.playersCoords = {}
+		self.players = {}
 		while playerRaw ~= nil and playerRaw ~= "" do
 			local playerInfo = {}
 			for number in string.gmatch(playerRaw, "%d+") do
 				table.insert(playerInfo, number)
 			end
-			table.insert(self.playersCoords, playerInfo)
+			local new_player = Player:new(playerInfo[1], playerInfo[2], playerInfo[3], playerInfo[4])
+			table.insert(self.players, new_player)
 			playerRaw = self.sock:receive("*l")
 		end
 	end
@@ -55,10 +57,10 @@ end
 function Game:draw()
 	-- k:draw()
 	-- k2:draw()
-	for id, player in ipairs(self.playersCoords) do
+	for id, player in ipairs(self.players) do
 		-- x is player[2] y is player[3] (for some reason)
-		print(id, player[2], player[3], player[4] / 1000)
-		love.graphics.draw(self.mainKart.image, player[2], player[3], player[4] / 1000)
+		print(player.id, player.x, player.y, player.theta / 1000)
+		love.graphics.draw(self.mainKart.image, player.x, player.y, player.theta / 1000)
 	end
 	self.boxes[1]:draw()
 end
