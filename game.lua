@@ -1,7 +1,6 @@
 kart = require("Kart")
 box = require("Box")
 socket = require("socket")
-bump = require("bump")
 player = require("player")
 
 Game = {
@@ -44,6 +43,10 @@ function Game:load()
 
 	self.sock = socket.connect("localhost", 5000)
 	self.networking(self)
+	local w, h = self.mainKart.image:getDimensions()
+	for id, player in ipairs(self.players) do
+		ggg.world:add(player, player.x, player.y, w, h)
+	end
 end
 
 function Game:update(dt)
@@ -53,6 +56,9 @@ function Game:update(dt)
 		self.mainKart:shoot()
 	end
 	self.networking(self)
+	for id, player in ipairs(self.players) do
+		ggg.world:add(player, player.x, player.y, w, h)
+	end
 end
 
 function Game:draw()
@@ -60,7 +66,7 @@ function Game:draw()
 	-- k2:draw()
 	for id, player in ipairs(self.players) do
 		print(player.id, player.x, player.y, player.theta / 1000)
-        player:draw()
+		player:draw()
 	end
 	self.boxes[1]:draw()
 end
