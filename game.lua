@@ -1,19 +1,32 @@
 kart = require("Kart")
 box = require("Box")
 socket = require("socket")
-game = require("game")
 
+Game = {
+    x = 400,
+    y =  300,
+    velocity = 0,
+    transitionSpeed = 5,
+    theta = 0,
+    dtheta = 15 / (2 * 3.14),
+    MaxVelocity = 10,
+    playersCoords = {}
+}
 
-function love.load()
-	-- love.window.setFullscreen(true, "desktop")
-	-- k = kart.Kart:new(x, y)
+function Game:new() 
+    ggg = {}
+    setmetatable(ggg, self)
+
+end
+
+function Game:update()
     k2 = kart.Kart:new(100, 100)
 	b = box.Box:new(nil)
 
     s = socket.connect("localhost", 5000)
 end
 
-function love.update(dt)
+function Game:load()
 	-- k:update(dt)
     k2:update(dt)
     if love.keyboard.isDown("e") then
@@ -38,7 +51,7 @@ function love.update(dt)
     end
 end
 
-function love.draw()
+function Game:draw()
 	-- k:draw()
     -- k2:draw()
     for id,player in ipairs(playersCoords) do
@@ -48,3 +61,4 @@ function love.draw()
     end
 	b:draw()
 end
+
