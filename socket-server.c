@@ -8,21 +8,31 @@
 #include <pthread.h>
 #include <string.h>
 
+#define MAX_PLAYERS 4
+
 typedef struct player_t {
     int id;
     int x;
     int y;
+    int taken;
 } Player;
 
-Player p;
+Player players[MAX_PLAYERS];
+
+struct connection_input {
+    int sockfd;
+    int id;
+};
 
 void *
-connection_handler(void *socket_desc) {
-	
+connection_handler(void *input) {
+    struct connection_input* in = (struct connection_input*)input;	
 	/* Get the socket descriptor */
-	int sock = * (int *)socket_desc;
+	int sock = in->sockfd;
+    int id = in->id;
 	int read_size;
 	char *message , client_message[128];
+    players[id].id = id;
 	
 	do {
 		read_size = recv(sock , client_message , 128 , 0);
@@ -41,10 +51,17 @@ connection_handler(void *socket_desc) {
         }    
         // ignoring possibility of overflow or invalid read for now
         
-        p.x = x_parsed;
-        p.y = y_parsed;
+        players[id].x = x_parsed;
+        players[id].y = y_parsed;
 
-        printf("id: %d, x: %d, y: %d\n", p.id, p.x, p.y);
+        printf("id: %d, x: %d, y: %d\n", players[id].id, players[id].x, players[id].y);
+        if (x_parsed == -1  || y_parsed == -1) {
+            break;
+        }
+        for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
+            dprintf(sock, "%d %d %d\n", p, players[p].x, players[p].y);
+        }
+        dprintf(sock, "\n");
 		
 		/* Clear the message buffer */
 		memset(client_message, 0, 128);
@@ -52,6 +69,7 @@ connection_handler(void *socket_desc) {
 	
 	fprintf(stderr, "Client disconnected\n"); 
 	
+    players[id].taken = 0;
 	close(sock);
 	pthread_exit(NULL);
 }
@@ -60,6 +78,10 @@ int
 main(int argc, char *argv[]) {
 	int listenfd = 0, connfd = 0;
 	struct sockaddr_in serv_addr; 
+
+    for (int i = 0; i<MAX_PLAYERS; i++) {
+        players[i].taken = 0;
+    }
 	
 	pthread_t thread_id;
 
@@ -75,9 +97,17 @@ main(int argc, char *argv[]) {
 	listen(listenfd, 10); 
 
 	for (;;) {
+
 		connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
 		fprintf(stderr, "Connection accepted\n"); 
-		pthread_create(&thread_id, NULL, connection_handler , (void *) &connfd);
+        struct connection_input ci;
+        int id = 0;
+
+        while (id < MAX_PLAYERS && players[id].taken == 1) {id++;}
+        ci.id = id;
+        ci.sockfd = connfd;
+        players[id].taken = 1;
+		pthread_create(&thread_id, NULL, connection_handler , (void *) &ci);
 	}
 }
 

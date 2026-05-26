@@ -8,11 +8,14 @@ theta = 0
 dtheta = 15 / (2 * 3.14)
 MaxVelocity = 10
 
+playersCoords = {}
+
 function love.load()
 	-- love.window.setFullscreen(true, "desktop")
 	-- k = kart.Kart:new(x, y)
     k2 = kart.Kart:new(100, 100)
 	b = box.Box:new(nil)
+
     s = socket.connect("localhost", 5000)
 end
 
@@ -24,11 +27,30 @@ function love.update(dt)
     end
     if s ~= nil then
         s:send(k2:getPosString())
+
+        playerRaw = s:receive("*l")
+        i = 1
+        playersCoords = {}
+        while (playerRaw ~= nil and playerRaw ~= "") do
+            
+            playerInfo = {}
+            j = 1
+            for number in string.gmatch(playerRaw, "%d+") do
+                table.insert(playerInfo, number)
+            end
+            table.insert(playersCoords, playerInfo)
+            playerRaw = s:receive("*l")
+        end
     end
 end
 
 function love.draw()
 	-- k:draw()
-    k2:draw()
+    -- k2:draw()
+    for id,player in ipairs(playersCoords) do
+        -- x is player[2] y is player[3] (for some reason)
+        print(id, player[2], player[3])
+        love.graphics.draw(k2.image, player[2], player[3])
+    end
 	b:draw()
 end
