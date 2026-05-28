@@ -60,6 +60,13 @@ function drawRotated(x, y, width, height, theta, image)
 	love.graphics.draw(image, newx, newy, theta)
 end
 
+-- returns array of 8 points laying on the ellipse
+-- the points are evenly spaced, starting from intersection
+-- of the ellipse and a straight line y=0, clockwise
+function ellipseDefinitionPoints(x, y, width, height)
+    
+end
+
 function Game:draw()
 	-- k:draw()
     -- k2:draw()
