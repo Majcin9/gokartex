@@ -30,6 +30,9 @@ function Game:update(dt)
     if love.keyboard.isDown("e") then
         self.mainKart:shoot()
     end
+    if self.mainKart:isCollidingPoint(100, 100) then
+        print("collision")
+    end
     if self.sock ~= nil then
         self.sock:send(self.mainKart:getPosString())
 
@@ -47,14 +50,29 @@ function Game:update(dt)
     end
 end
 
+function drawRotated(x, y, width, height, theta, image)
+    local radius = math.sqrt((width * width) + (height * height))/2
+    local alpha = math.asin(height/(2*radius))
+    local newx = x - radius*math.cos(alpha + theta)
+    local newy = y - radius*math.sin(alpha + theta)
+    print(newx, newy)
+
+	love.graphics.draw(image, newx, newy, theta)
+end
+
 function Game:draw()
 	-- k:draw()
     -- k2:draw()
+    love.graphics.points(100, 100) 
     for id,player in ipairs(self.playersCoords) do
         -- x is player[2] y is player[3] (for some reason)
         print(id, player[2], player[3], player[4]/1000)
-        love.graphics.draw(self.mainKart.image, player[2], player[3], player[4]/1000)
+        -- love.graphics.draw(self.mainKart.image, player[2], player[3], player[4]/1000)
+        local width = self.mainKart.image:getWidth()
+        local height = self.mainKart.image:getHeight()
+        drawRotated(player[2], player[3], width, height, player[4]/1000, self.mainKart.image)
     end
+    love.graphics.points(self.mainKart.x, self.mainKart.y)
 	self.boxes[1]:draw()
 end
 

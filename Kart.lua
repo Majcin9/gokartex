@@ -104,6 +104,26 @@ function Kart:getPosString()
     return self.x .. " " .. self.y .. " " .. tonumber(self.theta*1000)
 end
 
+function ellipseCollision(major, minor, theta, xcenter, ycenter, x, y)
+    -- uses formula for ellipse [ (x^2)/(major^2) + (y^2)/(minor^2) = 1]
+    -- where if you change the = to a <=, you get all points inside and
+    -- on the border of the ellipse
+    -- it also applies rotation by replacing x with x*cos(theta) - y*sin(theta)
+    -- and y with x*sin(theta) + y*cos(theta)
+    -- finally, it translates the entire ellipse for its center to be in
+    -- (centerx, centery).
+    return (((x-xcenter)*math.cos(theta) - (y-ycenter)*math.sin(theta)) ^ 2)/(major^2) +
+           (((x-xcenter)*math.sin(theta) + (y-ycenter)*math.cos(theta)) ^ 2)/(minor^2) <= 1
+end
+
+function Kart:isCollidingPoint(x, y)
+    local width = self.image:getWidth()
+    local height = self.image:getHeight()
+    local major = width/2
+    local minor = height/2
+    return ellipseCollision(major, minor, self.theta, self.x, self.y, x, y)
+end
+
 return {
     Kart = Kart
 }
