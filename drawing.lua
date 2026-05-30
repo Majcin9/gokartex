@@ -2,9 +2,9 @@ function pointDistance(x0, y0, x1, y1)
     return math.sqrt((x0-x1)^2 + (y0-y1)^2)
 end
 
-function circleCollision(x0, y0, x1, y1, r) -- assuming equal radius
+function circleCollision(x0, y0, r0, x1, y1, r1) 
     local dist = pointDistance(x0, y0, x1, y1)
-    return  dist <= 2*r and dist > 0
+    return  dist <= r0+r1 and dist > 0
 end
 
 function drawRotated(x, y, width, height, theta, image)

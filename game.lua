@@ -62,10 +62,11 @@ function Game:update(dt)
             playerRaw = self.sock:receive("*l")
         end
     end
-    
-    for id,player in ipairs(self.playersCoords) do
-        if circleCollision(player[2], player[3], 100, 100, self.mainKart:radius()) then
-            print("COLLISION")
+
+    local tempbu = Bullet:new(0, 0, 0)
+    for id, bullet in ipairs(self.bulletCoords) do         -- bad way to get the radius.. FIX IT!
+        if circleCollision(self.mainKart.x, self.mainKart.y, self.mainKart.image:getWidth()/2, bullet[1], bullet[2], tempbu.image:getWidth()/2) then
+            print("BULLET COLLISION")
         end
     end
 end
