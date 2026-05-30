@@ -1,6 +1,6 @@
 weaponType = { GUN = {
     damage = 100,
-    speed = 4
+    speed = 15
     }
 }
 
