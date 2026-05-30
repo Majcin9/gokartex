@@ -87,6 +87,10 @@ function Kart:shoot()
     bu = self.weapon:fire(self.x, self.y, self.theta)
 end
 
+function Kart:radius()
+    return self.image:getWidth()/2 --because texture is a square
+end
+
 function Kart:draw()
     local width = self.image:getWidth()
     local height = self.image:getHeight()
@@ -104,40 +108,13 @@ function Kart:getPosString()
     return self.x .. " " .. self.y .. " " .. tonumber(self.theta*1000)
 end
 
--- returns array of n points laying on the ellipse
--- the points are evenly spaced, starting from intersection
--- of the ellipse and a straight line y=0, clockwise
-function ellipseDefinitionPoints(x, y, width, height, n)
-    local major = width/2
-    local minor = height/2
-    local pts = {}
-    local max = n or 8
-    local k = 0
+function pointDistance(x0, y0, x1, y1)
+    return math.sqrt((x0-x1)^2 + (y0-y1)^2)
 end
 
-function ellipseFormula(major, minor, theta, xcenter, ycenter, x, y)
-    -- uses formula for ellipse [ (x^2)/(major^2) + (y^2)/(minor^2)]
-    -- it also applies rotation by replacing x with x*cos(theta) - y*sin(theta)
-    -- and y with x*sin(theta) + y*cos(theta)
-    -- finally, it translates the entire ellipse for its center to be in
-    -- (centerx, centery).
-    return (((x-xcenter)*math.cos(theta) - (y-ycenter)*math.sin(theta)) ^ 2)/(major^2) +
-           (((x-xcenter)*math.sin(theta) + (y-ycenter)*math.cos(theta)) ^ 2)/(minor^2)
-end
-
-function ellipseCollision(major, minor, theta, xcenter, ycenter, x, y)
-    -- uses formula for ellipse [ (x^2)/(major^2) + (y^2)/(minor^2) = 1]
-    -- where if you change = to <= you get all points on the outline
-    -- and inside the ellipse
-    return ellipseFormula(major, minor, theta, xcenter, ycenter, x, y) <= 1
-end
-
-function Kart:isCollidingPoint(x, y)
-    local width = self.image:getWidth()
-    local height = self.image:getHeight()
-    local major = width/2
-    local minor = height/2
-    return ellipseCollision(major, minor, self.theta, self.x, self.y, x, y)
+function circleCollision(x0, y0, x1, y1, r) -- assuming equal radius
+    local dist = pointDistance(x0, y0, x1, y1)
+    return  dist <= 2*r and dist > 0
 end
 
 return {
