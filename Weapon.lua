@@ -28,7 +28,8 @@ Bullet = {
     theta = 0,
     type = nil,
     imagePath = "assets/bullet.png",
-    image = nil
+    image = nil,
+    radius = nil
 }
 
 Bullet.__index = Bullet
@@ -43,16 +44,22 @@ function Bullet:new(x, y, theta, type, imagePath)
     bull.type = type or weaponType.GUN
     bull.imagePath = imagePath or "assets/bullet.png"
     bull.image = love.graphics.newImage(bull.imagePath)
+    bull.radius = bull.image:getWidth()/2
 	return bull
 end
 
 function Bullet:update()
     self.x = self.x + self.type.speed * math.cos(self.theta)
     self.y = self.y + self.type.speed * math.sin(self.theta)
+    return self
 end
 
 function Bullet:draw()
-    love.graphics.draw(self.image, self.x, self.y, self.theta, 0.1, 0.1)
+    drawing.drawRotated(self.x, self.y, self.image:getWidth(), self.image:getHeight(), self.theta)
+end
+
+function Bullet:getPosString()
+    return self.x .. " " .. self.y .. " " .. self.theta*1000
 end
 
 return {

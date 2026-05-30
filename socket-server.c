@@ -10,11 +10,16 @@
 
 #define MAX_PLAYERS 4
 
-typedef struct player_t {
-    int id;
+typedef struct bullet_t {
     int x;
     int y;
     int theta;
+} pos_t;
+
+typedef struct player_t {
+    int id;
+    pos_t playerPos;
+    pos_t bulletPos;
     int taken;
 } Player;
 
@@ -24,6 +29,36 @@ struct connection_input {
     int sockfd;
     int id;
 };
+
+int parse_pos(char* posstr, pos_t* p) {
+    char* x;
+    char* y;
+    char* theta;
+    char* temp;
+    temp = strtok(posstr, " ");
+    if (temp == NULL) return -1;
+
+    x = strtok(NULL, " ");
+    if (x == NULL) return -1;
+    y = strtok(NULL, " ");
+    if (y == NULL) return -1;
+    theta = strtok(NULL, " ");
+    if (theta == NULL) return -1;
+    int x_parsed = -1; 
+    int y_parsed = -1;
+    int theta_parsed = -1;
+
+    x_parsed = atoi(x);
+    y_parsed = atoi(y);
+    theta_parsed = atoi(theta);
+    // ignoring possibility of overflow or invalid read for now
+
+    p->x = x_parsed;
+    p->y = y_parsed;
+    p->theta = theta_parsed;
+    
+    return (x_parsed == -1 || y_parsed == -1 || theta_parsed == -1) ? -1 : 0;
+}
 
 void *
 connection_handler(void *input) {
@@ -38,36 +73,19 @@ connection_handler(void *input) {
 	do {
 		read_size = recv(sock , client_message , 128 , 0);
 		client_message[read_size] = '\0';
-        char* x;
-        char* y;
-        char* theta;
-        x = strtok(client_message, " ");
-        if (x == NULL) {
+        //printf("%s\n", client_message);
+        char* playerStr = strtok(client_message, ",");
+        char* bulletStr = strtok(NULL, ",");
+        if (parse_pos(playerStr, &players[id].playerPos) == -1) {
+            printf("bad player data");
             break;
         }
-        y = strtok(NULL, " ");
-        if (y == NULL) break;
-        theta = strtok(NULL, " ");
-        if (theta == NULL) break;
-        int x_parsed = -1; 
-        int y_parsed = -1;
-        int theta_parsed = -1;
-
-        x_parsed = atoi(x);
-        y_parsed = atoi(y);
-        theta_parsed = atoi(theta);
-        // ignoring possibility of overflow or invalid read for now
-        
-        players[id].x = x_parsed;
-        players[id].y = y_parsed;
-        players[id].theta = theta_parsed;
-
-        // printf("id: %d, x: %d, y: %d\n", players[id].id, players[id].x, players[id].y);
-        if (x_parsed == -1  || y_parsed == -1 || theta_parsed == -1) {
-            break;
+        if (parse_pos(bulletStr, &players[id].bulletPos) == -1) {
+            //break;
         }
         for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
-            dprintf(sock, "%d %d %d %d\n", p, players[p].x, players[p].y, players[p].theta);
+            dprintf(sock, "%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
+            dprintf(sock, "%d %d %d\n", players[p].bulletPos.x, players[p].bulletPos.y, players[p].bulletPos.theta);
         }
         dprintf(sock, "\n");
 		

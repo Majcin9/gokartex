@@ -1,4 +1,5 @@
 weapons = require("Weapon")
+drawing = require("drawing")
 
 local Kart = {
 	x = 0,
@@ -64,8 +65,8 @@ function Kart:update(dt)
 		end
 	end
 
-    if love.keyboard.isDown("space") then
-        
+    if love.keyboard.isDown("e") then
+        self.bu = self:shoot()
     end
 
 	if self.velocity > 0 then
@@ -75,16 +76,15 @@ function Kart:update(dt)
 	end
 	self.x = self.x + self.velocity * math.cos(self.theta)
 	self.y = self.y + self.velocity * math.sin(self.theta)
-    if bu ~= nil then
-        bu:update()
+    if self.bu ~= nil then
+        self.bu = self.bu:update()
     end
 end
 
 
 function Kart:shoot() 
-    print("x " .. self.x .. "y " .. self.y)
     
-    bu = self.weapon:fire(self.x, self.y, self.theta)
+    return self.weapon:fire(self.x, self.y, self.theta)
 end
 
 function Kart:radius()
@@ -99,22 +99,13 @@ function Kart:draw()
     local newy = self.y + radius*math.sin((5*3.14/4) + self.theta)
 
 	love.graphics.draw(self.image, newx, newy, self.theta)
-    if bu ~= nil then
-        bu:draw(self.theta)
+    if self.bu ~= nil then
+        self.bu:draw(self.theta)
     end
 end
 
 function Kart:getPosString()
     return self.x .. " " .. self.y .. " " .. tonumber(self.theta*1000)
-end
-
-function pointDistance(x0, y0, x1, y1)
-    return math.sqrt((x0-x1)^2 + (y0-y1)^2)
-end
-
-function circleCollision(x0, y0, x1, y1, r) -- assuming equal radius
-    local dist = pointDistance(x0, y0, x1, y1)
-    return  dist <= 2*r and dist > 0
 end
 
 return {

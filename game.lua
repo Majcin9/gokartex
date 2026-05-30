@@ -1,9 +1,12 @@
 kart = require("Kart")
+weapon = require("Weapon")
 box = require("Box")
 socket = require("socket")
+drawing = require("drawing")
 
 Game = {
     playersCoords = {},
+    bulletCoords = {},
     mainKart = nil,
     boxes = {},
     sock = nil,
@@ -27,21 +30,35 @@ end
 function Game:update(dt)
 	-- k:update(dt)
     self.mainKart:update(dt)
-    if love.keyboard.isDown("e") then
-        self.mainKart:shoot()
-    end
+
     if self.sock ~= nil then
-        self.sock:send(self.mainKart:getPosString())
+        local kartStr = "P " .. self.mainKart:getPosString()
+        local bullstr = ""
+        if self.mainKart.bu ~= nil then
+            bullStr = "B " .. self.mainKart.bu:getPosString()
+        else
+            bullStr = "B -1 -1"
+        end
+        self.sock:send(kartStr .. "," .. bullStr)
+
 
         local playerRaw = self.sock:receive("*l")
         self.playersCoords = {}
+        self.bulletCoords = {}
         while (playerRaw ~= nil and playerRaw ~= "") do
-            
             local playerInfo = {}
-            for number in string.gmatch(playerRaw, "%d+") do
-                table.insert(playerInfo, number)
+            for number in string.gmatch(playerRaw, "[^%s]+") do
+                table.insert(playerInfo, tonumber(number))
             end
             table.insert(self.playersCoords, playerInfo)
+            local bulletRaw = self.sock:receive("*l")
+            local bulletInfo = {}
+            for number in string.gmatch(bulletRaw, "[^%s]+") do
+                table.insert(bulletInfo, tonumber(number))
+            end
+            print("bulletRaw" .. bulletRaw)
+            print("bulletInfo" .. bulletInfo[1], bulletInfo[2])
+            table.insert(self.bulletCoords, bulletInfo)
             playerRaw = self.sock:receive("*l")
         end
     end
@@ -53,34 +70,23 @@ function Game:update(dt)
     end
 end
 
-function drawRotated(x, y, width, height, theta, image)
-    local radius = math.sqrt((width * width) + (height * height))/2
-    local alpha = math.asin(height/(2*radius))
-    local newx = x - radius*math.cos(alpha + theta)
-    local newy = y - radius*math.sin(alpha + theta)
-    print(newx, newy)
-
-	love.graphics.draw(image, newx, newy, theta)
-end
-
--- returns array of 8 points laying on the ellipse
--- the points are evenly spaced, starting from intersection
--- of the ellipse and a straight line y=0, clockwise
-function ellipseDefinitionPoints(x, y, width, height)
-    
-end
 
 function Game:draw()
 	-- k:draw()
     -- k2:draw()
     local width = self.mainKart.image:getWidth()
     local height = self.mainKart.image:getHeight()
-    drawRotated(100, 100, width, height, 0, self.mainKart.image)
+    drawing.drawRotated(100, 100, width, height, 0, self.mainKart.image)
     for id,player in ipairs(self.playersCoords) do
-        -- x is player[2] y is player[3] (for some reason)
-        print(id, player[2], player[3], player[4]/1000)
         -- love.graphics.draw(self.mainKart.image, player[2], player[3], player[4]/1000)
-        drawRotated(player[2], player[3], width, height, player[4]/1000, self.mainKart.image)
+        drawing.drawRotated(player[2], player[3], width, height, player[4]/1000, self.mainKart.image)
+    end
+
+    local tempbu = Bullet:new(0, 0, 0)
+    local bulletWidth = tempbu.image:getWidth()
+
+    for id,bullet in ipairs(self.bulletCoords) do
+        drawing.drawRotated(bullet[1], bullet[2], bulletWidth, bulletWidth, bullet[3]/1000, tempbu.image)
     end
     love.graphics.points(self.mainKart.x, self.mainKart.y)
 	self.boxes[1]:draw()
