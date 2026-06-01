@@ -3,6 +3,7 @@ weapon = require("Weapon")
 box = require("Box")
 socket = require("socket")
 drawing = require("drawing")
+wall = require("Wall")
 
 Game = {
     playersCoords = {},
@@ -73,6 +74,9 @@ function Game:update(dt)
             end
         end
     end
+
+    local w = wall.Wall:new(10, 10, 100, 10)
+    print("wall distance: ", w:distance(self.mainKart.x, self.mainKart.y))
 end
 
 
@@ -95,6 +99,8 @@ function Game:draw()
     end
     love.graphics.points(self.mainKart.x, self.mainKart.y)
 	self.boxes[1]:draw()
+
+    love.graphics.line(10, 10, 100, 10)
 end
 
 
