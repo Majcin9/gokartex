@@ -92,10 +92,14 @@ function Game:update(dt)
 				box.x,
 				box.y,
 				box.image:getWidth() / 2
-			)
+			) and box.visible
 		then
+			box.visible = false
 			print("BOX COLLISION")
+		elseif not box.visible and box.timeinv >= 3 then
+			box.visible = true
 		end
+		box:update()
 	end
 end
 
