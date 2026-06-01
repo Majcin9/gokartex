@@ -10,6 +10,7 @@ Game = {
     mainKart = nil,
     boxes = {},
     sock = nil,
+    id = 0
 }
 
 Game.__index = Game
@@ -25,6 +26,8 @@ function Game:load()
     table.insert(self.boxes, box.Box:new(nil))
 
     self.sock = socket.connect("localhost", 5000)
+
+    self.id = tonumber(self.sock:receive("*l"))
 end
 
 function Game:update(dt)
@@ -57,16 +60,17 @@ function Game:update(dt)
                 table.insert(bulletInfo, tonumber(number))
             end
             print("bulletRaw" .. bulletRaw)
-            print("bulletInfo" .. bulletInfo[1], bulletInfo[2])
             table.insert(self.bulletCoords, bulletInfo)
             playerRaw = self.sock:receive("*l")
         end
     end
 
     local tempbu = Bullet:new(0, 0, 0)
-    for id, bullet in ipairs(self.bulletCoords) do         -- bad way to get the radius.. FIX IT!
-        if circleCollision(self.mainKart.x, self.mainKart.y, self.mainKart.image:getWidth()/2, bullet[1], bullet[2], tempbu.image:getWidth()/2) then
-            print("BULLET COLLISION")
+    for id, bullet in ipairs(self.bulletCoords) do         
+        if bullet[1] ~= self.id then
+            if circleCollision(self.mainKart.x, self.mainKart.y, self.mainKart.image:getWidth()/2, bullet[2], bullet[3], tempbu.image:getWidth()/2) then
+                print("BULLET COLLISION")
+            end
         end
     end
 end
@@ -87,7 +91,7 @@ function Game:draw()
     local bulletWidth = tempbu.image:getWidth()
 
     for id,bullet in ipairs(self.bulletCoords) do
-        drawing.drawRotated(bullet[1], bullet[2], bulletWidth, bulletWidth, bullet[3]/1000, tempbu.image)
+        drawing.drawRotated(bullet[2], bullet[3], bulletWidth, bulletWidth, bullet[4]/1000, tempbu.image)
     end
     love.graphics.points(self.mainKart.x, self.mainKart.y)
 	self.boxes[1]:draw()

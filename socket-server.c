@@ -10,7 +10,7 @@
 
 #define MAX_PLAYERS 4
 
-typedef struct bullet_t {
+typedef struct position {
     int x;
     int y;
     int theta;
@@ -69,7 +69,9 @@ connection_handler(void *input) {
 	int read_size;
 	char *message , client_message[128];
     players[id].id = id;
-	
+    
+    dprintf(sock, "%d\n", id);
+
 	do {
 		read_size = recv(sock , client_message , 128 , 0);
 		client_message[read_size] = '\0';
@@ -85,7 +87,7 @@ connection_handler(void *input) {
         }
         for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
             dprintf(sock, "%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
-            dprintf(sock, "%d %d %d\n", players[p].bulletPos.x, players[p].bulletPos.y, players[p].bulletPos.theta);
+            dprintf(sock, "%d %d %d %d\n", p, players[p].bulletPos.x, players[p].bulletPos.y, players[p].bulletPos.theta);
         }
         dprintf(sock, "\n");
 		
