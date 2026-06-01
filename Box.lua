@@ -4,14 +4,15 @@ Box = {
 	imagepath = "assets/box.png",
 	image = nil,
 }
-function Box:new(o, x, y, imagepath)
-	o = o or {}
+Box.__index = Box
+function Box:new(x, y, imagepath)
+	local o = {}
 	setmetatable(o, self)
-	self.__index = self
-	w, h = love.window.getDesktopDimensions()
-	self.x = x or math.random(1, w - 1)
-	self.y = y or math.random(1, h - 1)
-	self.image = love.graphics.newImage(imagepath or "assets/box.png")
+	o.__index = self
+	local w, h = love.window.getDesktopDimensions()
+	o.x = x or math.random(1, w - 1)
+	o.y = y or math.random(1, h - 1)
+	o.image = love.graphics.newImage(imagepath or "assets/box.png")
 	return o
 end
 
