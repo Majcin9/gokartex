@@ -27,7 +27,9 @@ function Game:load()
     table.insert(self.boxes, box.Box:new(nil))
 
     self.sock = socket.connect("localhost", 5000)
-
+    while self.sock == nil do
+        self.sock = socket.connect("localhost", 5000)
+    end
     self.id = tonumber(self.sock:receive("*l"))
 end
 
@@ -37,13 +39,16 @@ function Game:update(dt)
 
     if self.sock ~= nil then
         local kartStr = "P " .. self.mainKart:getPosString()
-        local bullstr = ""
-        if self.mainKart.bu ~= nil then
-            bullStr = "B " .. self.mainKart.bu:getPosString()
-        else
-            bullStr = "B -1 -1"
+        local bullStr = {}
+        for i = 1, 3 do
+            local bull = self.mainKart.bu[i]
+            if bull ~= nil then
+                table.insert(bullStr, "B " .. bull:getPosString())
+            else
+                table.insert(bullStr,"B -1 -1")
+            end
         end
-        self.sock:send(kartStr .. "," .. bullStr)
+        self.sock:send(kartStr .. "," .. bullStr[1] .. "," .. bullStr[2] .. "," .. bullStr[3])
 
 
         local playerRaw = self.sock:receive("*l")
@@ -55,13 +60,14 @@ function Game:update(dt)
                 table.insert(playerInfo, tonumber(number))
             end
             table.insert(self.playersCoords, playerInfo)
-            local bulletRaw = self.sock:receive("*l")
-            local bulletInfo = {}
-            for number in string.gmatch(bulletRaw, "[^%s]+") do
-                table.insert(bulletInfo, tonumber(number))
+            for i = 1, 3 do
+                local bulletRaw = self.sock:receive("*l")
+                local bulletInfo = {}
+                for number in string.gmatch(bulletRaw, "[^%s]+") do
+                    table.insert(bulletInfo, tonumber(number))
+                end
+                table.insert(self.bulletCoords, bulletInfo)
             end
-            print("bulletRaw" .. bulletRaw)
-            table.insert(self.bulletCoords, bulletInfo)
             playerRaw = self.sock:receive("*l")
         end
     end
@@ -76,7 +82,6 @@ function Game:update(dt)
     end
 
     local w = wall.Wall:new(10, 10, 100, 10)
-    print("wall distance: ", w:distance(self.mainKart.x, self.mainKart.y))
 end
 
 
@@ -85,7 +90,8 @@ function Game:draw()
     -- k2:draw()
     local width = self.mainKart.image:getWidth()
     local height = self.mainKart.image:getHeight()
-    drawing.drawRotated(100, 100, width, height, 0, self.mainKart.image)
+    -- drawing.drawRotated(100, 100, width, height, 0, self.mainKart.image)
+
     for id,player in ipairs(self.playersCoords) do
         -- love.graphics.draw(self.mainKart.image, player[2], player[3], player[4]/1000)
         drawing.drawRotated(player[2], player[3], width, height, player[4]/1000, self.mainKart.image)
@@ -95,7 +101,10 @@ function Game:draw()
     local bulletWidth = tempbu.image:getWidth()
 
     for id,bullet in ipairs(self.bulletCoords) do
-        drawing.drawRotated(bullet[2], bullet[3], bulletWidth, bulletWidth, bullet[4]/1000, tempbu.image)
+        print(bullet[2], bullet[3])
+        if bullet[2] ~= -1 and bullet[3] ~= -1 then
+            drawing.drawRotated(bullet[2], bullet[3], bulletWidth, bulletWidth, bullet[4]/1000, tempbu.image)
+        end
     end
     love.graphics.points(self.mainKart.x, self.mainKart.y)
 	self.boxes[1]:draw()

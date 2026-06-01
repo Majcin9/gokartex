@@ -11,7 +11,8 @@ local Kart = {
 	MaxVelocity = 10,
 	imagepath = "assets/helmet.png",
 	image = nil,
-    weapon = nil
+    weapon = nil,
+    bu = {}
 }
 
 Kart.__index = Kart
@@ -66,7 +67,11 @@ function Kart:update(dt)
 	end
 
     if love.keyboard.isDown("e") then
-        self.bu = self:shoot()
+        local bu_ret = self:shoot()
+        if bu_ret ~= nil then
+            print("shooted")
+            table.insert(self.bu, bu_ret)
+        end
     end
 
 	if self.velocity > 0 then
@@ -76,15 +81,21 @@ function Kart:update(dt)
 	end
 	self.x = self.x + self.velocity * math.cos(self.theta)
 	self.y = self.y + self.velocity * math.sin(self.theta)
-    if self.bu ~= nil then
-        self.bu = self.bu:update()
+    for i, bullet in ipairs(self.bu) do
+        bullet:update()
     end
 end
 
 
 function Kart:shoot() 
-    
-    return self.weapon:fire(self.x, self.y, self.theta)
+    local ret = nil
+    if self.weapon ~= nil then
+        ret = self.weapon:fire(self.x, self.x, self.theta)  
+        if ret == nil then
+            self.weapon = nil
+        end
+    end
+    return ret
 end
 
 function Kart:radius()

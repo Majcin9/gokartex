@@ -13,7 +13,6 @@ function drawRotated(x, y, width, height, theta, image)
     local alpha = math.asin(height/(2*radius))
     local newx = x - radius*math.cos(alpha + theta)
     local newy = y - radius*math.sin(alpha + theta)
-    print(newx, newy)
 
 	love.graphics.draw(image, newx, newy, theta)
 end

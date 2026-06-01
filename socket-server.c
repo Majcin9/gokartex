@@ -9,6 +9,8 @@
 #include <string.h>
 
 #define MAX_PLAYERS 4
+#define MAX_BULLETS 3
+#define MAX_LENGTH 256
 
 typedef struct position {
     int x;
@@ -19,11 +21,12 @@ typedef struct position {
 typedef struct player_t {
     int id;
     pos_t playerPos;
-    pos_t bulletPos;
+    pos_t bulletPos[3];
     int taken;
 } Player;
 
 Player players[MAX_PLAYERS];
+
 
 struct connection_input {
     int sockfd;
@@ -67,32 +70,43 @@ connection_handler(void *input) {
 	int sock = in->sockfd;
     int id = in->id;
 	int read_size;
-	char *message , client_message[128];
+	char *message , client_message[MAX_LENGTH];
+    memset(&players[id], 0, sizeof(Player));
     players[id].id = id;
-    
+    players[id].taken = 1;
     dprintf(sock, "%d\n", id);
 
 	do {
-		read_size = recv(sock , client_message , 128 , 0);
+		read_size = recv(sock , client_message , MAX_LENGTH , 0);
 		client_message[read_size] = '\0';
-        //printf("%s\n", client_message);
+        printf("client_message %s\n", client_message);
         char* playerStr = strtok(client_message, ",");
-        char* bulletStr = strtok(NULL, ",");
+        char* bulletStr[MAX_BULLETS];
+        // printf("playerstr %s\n", playerStr);
+        for (int i = 0; i < MAX_BULLETS; i++) {
+            bulletStr[i] = strtok(NULL, ",");
+        }
         if (parse_pos(playerStr, &players[id].playerPos) == -1) {
             printf("bad player data");
             break;
         }
-        if (parse_pos(bulletStr, &players[id].bulletPos) == -1) {
-            //break;
+        for (int i = 0; i<MAX_BULLETS; i++) {
+            if (parse_pos(bulletStr[i], &players[id].bulletPos[i]) == -1) {
+                //break;
+            }
         }
         for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
             dprintf(sock, "%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
-            dprintf(sock, "%d %d %d %d\n", p, players[p].bulletPos.x, players[p].bulletPos.y, players[p].bulletPos.theta);
+            printf("%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
+            for (int i = 0; i<MAX_BULLETS; i++) {
+                dprintf(sock, "%d %d %d %d\n", p, players[p].bulletPos[i].x, players[p].bulletPos[i].y, players[p].bulletPos[i].theta);
+                printf("%d %d %d %d\n", p, players[p].bulletPos[i].x, players[p].bulletPos[i].y, players[p].bulletPos[i].theta);
+            }
         }
         dprintf(sock, "\n");
 		
 		/* Clear the message buffer */
-		memset(client_message, 0, 128);
+		memset(client_message, 0, MAX_LENGTH);
 	} while(read_size > 2); /* Wait for empty line */
 	
 	fprintf(stderr, "Client disconnected\n"); 
@@ -132,10 +146,11 @@ main(int argc, char *argv[]) {
         int id = 0;
 
         while (id < MAX_PLAYERS && players[id].taken == 1) {id++;}
+
         ci.id = id;
         ci.sockfd = connfd;
         players[id].taken = 1;
-		pthread_create(&thread_id, NULL, connection_handler , (void *) &ci);
+        pthread_create(&thread_id, NULL, connection_handler , (void *) &ci);
 	}
 }
 
