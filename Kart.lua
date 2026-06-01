@@ -1,4 +1,5 @@
 weapons = require("Weapon")
+drawing = require("drawing")
 
 local Kart = {
 	x = 0,
@@ -8,7 +9,7 @@ local Kart = {
 	theta = 0,
 	dtheta = 15 / (2 * 3.14),
 	MaxVelocity = 10,
-	imagepath = "assets/gokart3.png",
+	imagepath = "assets/helmet.png",
 	image = nil,
     weapon = nil
 }
@@ -26,7 +27,7 @@ function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, i
 	o.dtheta = dtheta or (15 / (2 * 3.14))
 	o.MaxVelocity = MaxVelocity or 10
     o.weapon = weapons.Weapon:new()
-	o.image = love.graphics.newImage(imagepath or "assets/gokart3.png")
+	o.image = love.graphics.newImage(imagepath or "assets/helmet.png")
 	return o
 end
 
@@ -64,8 +65,8 @@ function Kart:update(dt)
 		end
 	end
 
-    if love.keyboard.isDown("space") then
-        
+    if love.keyboard.isDown("e") then
+        self.bu = self:shoot()
     end
 
 	if self.velocity > 0 then
@@ -75,16 +76,19 @@ function Kart:update(dt)
 	end
 	self.x = self.x + self.velocity * math.cos(self.theta)
 	self.y = self.y + self.velocity * math.sin(self.theta)
-    if bu ~= nil then
-        bu:update()
+    if self.bu ~= nil then
+        self.bu = self.bu:update()
     end
 end
 
 
 function Kart:shoot() 
-    print("x " .. self.x .. "y " .. self.y)
     
-    bu = self.weapon:fire(self.x, self.y, self.theta)
+    return self.weapon:fire(self.x, self.y, self.theta)
+end
+
+function Kart:radius()
+    return self.image:getWidth()/2 --because texture is a square
 end
 
 function Kart:draw()
@@ -95,8 +99,8 @@ function Kart:draw()
     local newy = self.y + radius*math.sin((5*3.14/4) + self.theta)
 
 	love.graphics.draw(self.image, newx, newy, self.theta)
-    if bu ~= nil then
-        bu:draw(self.theta)
+    if self.bu ~= nil then
+        self.bu:draw(self.theta)
     end
 end
 

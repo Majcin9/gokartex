@@ -16,6 +16,7 @@ end
 function love.update(dt)
 	-- k:update(dt)
     g:update(dt)
+
 end
 
 function love.draw()
