@@ -1,3 +1,7 @@
+function bool_to_number(value)
+	return value and 1 or 0
+end
+
 Box = {
 	x = 0,
 	y = 0,
@@ -15,7 +19,11 @@ function Box:new(x, y, visible, timeinv, timecheck, imagepath)
 	local w, h = love.graphics.getDimensions()
 	o.x = x or math.random(1, w - 1)
 	o.y = y or math.random(1, h - 1)
-	o.visible = visible or true
+	if visible == 0 then
+		o.visible = false
+	else
+		o.visible = true
+	end
 	o.timeinv = timeinv or 0
 	o.timecheck = timecheck or os.time()
 	o.image = love.graphics.newImage(imagepath or "assets/boxmini.png")
@@ -48,6 +56,10 @@ function Box:draw()
 	local newy = self.y + radius * math.sin((5 * 3.14 / 4))
 
 	love.graphics.draw(self.image, newx, newy, self.theta)
+end
+
+function Box:getString()
+	return self.x .. " " .. self.y .. " 0 " .. bool_to_number(self.visible) .. " " .. tonumber(self.timeinv * 10000)
 end
 
 return {

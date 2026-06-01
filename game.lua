@@ -26,6 +26,7 @@ function Game:load()
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
+	table.insert(self.boxes, box.Box:new(nil))
 
 	self.sock = socket.connect("localhost", 5000)
 
@@ -38,17 +39,26 @@ function Game:update(dt)
 
 	if self.sock ~= nil then
 		local kartStr = "P " .. self.mainKart:getPosString()
-		local bullstr = ""
 		if self.mainKart.bu ~= nil then
 			bullStr = "B " .. self.mainKart.bu:getPosString()
 		else
 			bullStr = "B -1 -1"
 		end
-		self.sock:send(kartStr .. "," .. bullStr)
+		local boxesStr = ""
+		for id, box in ipairs(self.boxes) do
+			local boxStr = box:getString()
+			boxesStr = boxesStr .. ",X " .. boxStr
+			print("BOX: " .. boxStr)
+		end
+		print("BOXES: " .. boxesStr)
+		local sendStr = kartStr .. "," .. bullStr .. boxesStr
+		print("Sent: " .. sendStr)
+		self.sock:send(sendStr)
 
 		local playerRaw = self.sock:receive("*l")
 		self.playersCoords = {}
 		self.bulletCoords = {}
+		self.boxes = {}
 		while playerRaw ~= nil and playerRaw ~= "" do
 			local playerInfo = {}
 			for number in string.gmatch(playerRaw, "[^%s]+") do
@@ -62,6 +72,19 @@ function Game:update(dt)
 			end
 			print("bulletRaw" .. bulletRaw)
 			table.insert(self.bulletCoords, bulletInfo)
+			for i = 0, 3 do
+				local boxRaw = self.sock:receive("*l")
+				print(boxRaw)
+				local boxInfo = {}
+				for number in string.gmatch(boxRaw, "[^%s]+") do
+					table.insert(boxInfo, tonumber(number))
+					print("boxRaw" .. boxRaw)
+				end
+				table.insert(
+					self.boxes,
+					Box:new(boxInfo[2 + i * 5], boxInfo[3 + i * 5], boxInfo[4 + i * 5], boxInfo[5 + i * 5])
+				)
+			end
 			playerRaw = self.sock:receive("*l")
 		end
 	end

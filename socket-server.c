@@ -9,6 +9,7 @@
 #include <string.h>
 
 #define MAX_PLAYERS 4
+#define MAX_BOXES 4
 
 typedef struct position {
     int x;
@@ -23,7 +24,17 @@ typedef struct player_t {
     int taken;
 } Player;
 
+typedef struct box_t {
+    int id;
+    int x;
+    int y;
+    int theta;
+    int visible;
+    int timeinv;
+} Box;
+
 Player players[MAX_PLAYERS];
+Box boxes[MAX_BOXES];
 
 struct connection_input {
     int sockfd;
@@ -60,6 +71,47 @@ int parse_pos(char* posstr, pos_t* p) {
     return (x_parsed == -1 || y_parsed == -1 || theta_parsed == -1) ? -1 : 0;
 }
 
+int parse_box(char* posstr, Box* b) {
+    char* x;
+    char* y;
+    char* theta;
+    char* visible;
+    char* timeinv;
+    char* temp;
+    temp = strtok(posstr, " ");
+    if (temp == NULL) return -1;
+
+    x = strtok(NULL, " ");
+    if (x == NULL) return -1;
+    y = strtok(NULL, " ");
+    if (y == NULL) return -1;
+    theta = strtok(NULL, " ");
+    if (theta == NULL) return -1;
+    visible = strtok(NULL, " ");
+    if (visible == NULL) return -1;
+    timeinv = strtok(NULL, " ");
+    if (timeinv == NULL) return -1;
+    int x_parsed = -1; 
+    int y_parsed = -1;
+    int theta_parsed = -1;
+    int vis_parsed = -1;
+    int time_parsed = -1;
+
+    x_parsed = atoi(x);
+    y_parsed = atoi(y);
+    theta_parsed = atoi(theta);
+    vis_parsed = atoi(visible);
+    time_parsed = atoi(timeinv);
+    // ignoring possibility of overflow or invalid read for now
+
+    b->x = x_parsed;
+    b->y = y_parsed;
+    b->theta = theta_parsed;
+    b->visible = vis_parsed;
+    b->timeinv = time_parsed;
+    
+    return (x_parsed == -1 || y_parsed == -1 || theta_parsed == -1 || vis_parsed == -1 || time_parsed == -1) ? -1 : 0;
+}
 void *
 connection_handler(void *input) {
     struct connection_input* in = (struct connection_input*)input;	
@@ -67,27 +119,41 @@ connection_handler(void *input) {
 	int sock = in->sockfd;
     int id = in->id;
 	int read_size;
-	char *message , client_message[128];
+	char *message , client_message[256];
     players[id].id = id;
     
     dprintf(sock, "%d\n", id);
+    int j = 0;
 
 	do {
-		read_size = recv(sock , client_message , 128 , 0);
+		read_size = recv(sock , client_message , 256 , 0);
 		client_message[read_size] = '\0';
         //printf("%s\n", client_message);
         char* playerStr = strtok(client_message, ",");
         char* bulletStr = strtok(NULL, ",");
+	char* boxStr = strtok(NULL,",");
         if (parse_pos(playerStr, &players[id].playerPos) == -1) {
             printf("bad player data");
-            break;
+            //break;
         }
         if (parse_pos(bulletStr, &players[id].bulletPos) == -1) {
             //break;
         }
+	if (parse_box(boxStr, &boxes[j]) == -1) {
+	    printf(boxStr);
+	    printf("bad box data\n");
+	    j++;
+	    if (j>=MAX_BOXES){
+		j=0;
+	    }
+	    break;
+	}
         for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
             dprintf(sock, "%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
             dprintf(sock, "%d %d %d %d\n", p, players[p].bulletPos.x, players[p].bulletPos.y, players[p].bulletPos.theta);
+        }
+        for (int b = 0; b<MAX_BOXES; b++) {
+            dprintf(sock, "%d %d %d %d %d\n", b, boxes[b].x, boxes[b].y, boxes[b].visible,boxes[b].timeinv);
         }
         dprintf(sock, "\n");
 		
