@@ -4,6 +4,7 @@ box = require("Box")
 socket = require("socket")
 drawing = require("drawing")
 wall = require("Wall")
+timer = require("Timer")
 
 Game = {
 	playersCoords = {},
@@ -12,6 +13,7 @@ Game = {
 	boxes = {},
 	sock = nil,
 	id = 0,
+	timer = nil,
 }
 
 Game.__index = Game
@@ -28,6 +30,7 @@ function Game:load()
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
+	self.timer = Timer:new(180)
 
 	self.sock = socket.connect("localhost", 5000)
 
@@ -164,6 +167,7 @@ function Game:draw()
 	for id, box in ipairs(self.boxes) do
 		box:draw()
 	end
+	self.timer:draw()
 end
 
 return {
