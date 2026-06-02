@@ -3,6 +3,7 @@ weapon = require("Weapon")
 box = require("Box")
 socket = require("socket")
 drawing = require("drawing")
+wall = require("Wall")
 
 Game = {
 	playersCoords = {},
@@ -39,10 +40,14 @@ function Game:update(dt)
 
 	if self.sock ~= nil then
 		local kartStr = "P " .. self.mainKart:getPosString()
-		if self.mainKart.bu ~= nil then
-			bullStr = "B " .. self.mainKart.bu:getPosString()
-		else
-			bullStr = "B -1 -1"
+		local bullStr = {}
+		for i = 1, 3 do
+			local bull = self.mainKart.bu[i]
+			if bull ~= nil then
+				table.insert(bullStr, "B " .. bull:getPosString())
+			else
+				table.insert(bullStr, "B -1 -1")
+			end
 		end
 		local boxesStr = ""
 		for id, box in ipairs(self.boxes) do
@@ -51,7 +56,7 @@ function Game:update(dt)
 			print("BOX: " .. boxStr)
 		end
 		print("BOXES: " .. boxesStr)
-		local sendStr = kartStr .. "," .. bullStr .. boxesStr
+		local sendStr = kartStr .. "," .. bullStr[1] .. "," .. bullStr[2] .. "," .. bullStr[3] .. boxesStr
 		print("Sent: " .. sendStr)
 		self.sock:send(sendStr)
 
@@ -65,13 +70,14 @@ function Game:update(dt)
 				table.insert(playerInfo, tonumber(number))
 			end
 			table.insert(self.playersCoords, playerInfo)
-			local bulletRaw = self.sock:receive("*l")
-			local bulletInfo = {}
-			for number in string.gmatch(bulletRaw, "[^%s]+") do
-				table.insert(bulletInfo, tonumber(number))
+			for i = 1, 3 do
+				local bulletRaw = self.sock:receive("*l")
+				local bulletInfo = {}
+				for number in string.gmatch(bulletRaw, "[^%s]+") do
+					table.insert(bulletInfo, tonumber(number))
+				end
+				table.insert(self.bulletCoords, bulletInfo)
 			end
-			print("bulletRaw" .. bulletRaw)
-			table.insert(self.bulletCoords, bulletInfo)
 			for i = 0, 3 do
 				local boxRaw = self.sock:receive("*l")
 				local boxInfo = {}
@@ -105,33 +111,35 @@ function Game:update(dt)
 				print("BULLET COLLISION")
 			end
 		end
-	end
-	for id, box in ipairs(self.boxes) do
-		if
-			circleCollision(
-				self.mainKart.x,
-				self.mainKart.y,
-				self.mainKart.image:getWidth() / 2,
-				box.x,
-				box.y,
-				box.image:getWidth() / 2
-			) and box.visible
-		then
-			box.visible = false
-			print("BOX COLLISION")
-		elseif not box.visible and box.timeinv >= 3 then
-			box.visible = true
+		for id, box in ipairs(self.boxes) do
+			if
+				circleCollision(
+					self.mainKart.x,
+					self.mainKart.y,
+					self.mainKart.image:getWidth() / 2,
+					box.x,
+					box.y,
+					box.image:getWidth() / 2
+				) and box.visible
+			then
+				box.visible = false
+				print("BOX COLLISION")
+			elseif not box.visible and box.timeinv >= 3 then
+				box.visible = true
+			end
+			box:update()
 		end
-		box:update()
+
+		local w = wall.Wall:new(10, 10, 100, 10)
 	end
 end
 
 function Game:draw()
 	-- k:draw()
-	-- k2:draw()
 	local width = self.mainKart.image:getWidth()
 	local height = self.mainKart.image:getHeight()
-	drawing.drawRotated(100, 100, width, height, 0, self.mainKart.image)
+	-- drawing.drawRotated(100, 100, width, height, 0, self.mainKart.image)
+
 	for id, player in ipairs(self.playersCoords) do
 		-- love.graphics.draw(self.mainKart.image, player[2], player[3], player[4]/1000)
 		drawing.drawRotated(player[2], player[3], width, height, player[4] / 1000, self.mainKart.image)
@@ -144,6 +152,15 @@ function Game:draw()
 		drawing.drawRotated(bullet[2], bullet[3], bulletWidth, bulletWidth, bullet[4] / 1000, tempbu.image)
 	end
 	love.graphics.points(self.mainKart.x, self.mainKart.y)
+	for id, bullet in ipairs(self.bulletCoords) do
+		print(bullet[2], bullet[3])
+		if bullet[2] ~= -1 and bullet[3] ~= -1 then
+			drawing.drawRotated(bullet[2], bullet[3], bulletWidth, bulletWidth, bullet[4] / 1000, tempbu.image)
+		end
+	end
+	love.graphics.points(self.mainKart.x, self.mainKart.y)
+
+	love.graphics.line(10, 10, 100, 10)
 	for id, box in ipairs(self.boxes) do
 		box:draw()
 	end

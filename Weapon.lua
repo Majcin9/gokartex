@@ -5,20 +5,23 @@ weaponType = { GUN = {
 }
 
 Weapon = {
-    type = weaponType.GUN
+    type = weaponType.GUN,
+    bullets = 3
 }
 
 Weapon.__index = Weapon
 
-function Weapon:new(type)
+function Weapon:new(type, bullets)
 	local w = w or {}
 	setmetatable(w, self)
 	w.__index = self
     w.type = type or weaponType.GUN
+    w.bullets = bullets or 3
 	return w
 end
 
 function Weapon:fire(x, y, theta)
+    self.bullets = self.bullets - 1
     return Bullet:new(x, y, theta)
 end
 
