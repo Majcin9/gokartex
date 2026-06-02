@@ -131,7 +131,10 @@ connection_handler(void *input) {
         //printf("%s\n", client_message);
         char* playerStr = strtok(client_message, ",");
         char* bulletStr = strtok(NULL, ",");
-	char* boxStr = strtok(NULL,",");
+	char* boxStr[MAX_BOXES];
+	for (int i = 0;i<MAX_BOXES;i++){
+	    boxStr[i] = strtok(NULL,",");
+	}
         if (parse_pos(playerStr, &players[id].playerPos) == -1) {
             printf("bad player data");
             //break;
@@ -139,14 +142,16 @@ connection_handler(void *input) {
         if (parse_pos(bulletStr, &players[id].bulletPos) == -1) {
             //break;
         }
-	if (parse_box(boxStr, &boxes[j]) == -1) {
-	    printf(boxStr);
-	    printf("bad box data\n");
-	    j++;
-	    if (j>=MAX_BOXES){
-		j=0;
+	for (int i = 0;i<MAX_BOXES;i++){
+	    if (parse_box(boxStr[i], &boxes[i]) == -1) {
+		printf(boxStr[i]);
+		printf("bad box data\n");
+		/*j++;
+		if (j>=MAX_BOXES){
+		    j=0;
+		}*/
+		break;
 	    }
-	    break;
 	}
         for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
             dprintf(sock, "%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
