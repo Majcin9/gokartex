@@ -77,12 +77,12 @@ function Game:update(dt)
 				local boxInfo = {}
 				for number in string.gmatch(boxRaw, "[^%s]+") do
 					table.insert(boxInfo, tonumber(number))
-					print("BoxInfo number " .. tonumber(number) .. "! " .. number)
+					--print("BoxInfo number " .. tonumber(number) .. "! " .. number)
 				end
-				local new_box = Box:new(boxInfo[2], boxInfo[3], boxInfo[4], boxInfo[5])
+				local new_box = Box:new(boxInfo[2], boxInfo[3], boxInfo[4], boxInfo[5] / 10000)
 
 				print("boxRaw" .. boxRaw)
-				print("newbox: " .. new_box:getString())
+				--print("newbox: " .. new_box:getString())
 				table.insert(self.boxes, new_box)
 			end
 			playerRaw = self.sock:receive("*l")

@@ -35,14 +35,14 @@ function Box:radius()
 end
 
 function Box:update()
-	if not self.visible then
-		local now = os.time()
-		self.timeinv = self.timeinv + os.difftime(now, self.timecheck)
-		self.timecheck = now
-	else
-		self.timeinv = 0
-		self.timecheck = os.time()
-	end
+	-- if not self.visible then
+	-- 	local now = os.time()
+	-- 	self.timeinv = self.timeinv + os.difftime(now, self.timecheck)
+	-- 	self.timecheck = now
+	-- else
+	-- 	self.timeinv = 0
+	-- 	self.timecheck = os.time()
+	-- end
 end
 
 function Box:draw()

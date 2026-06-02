@@ -1,15 +1,19 @@
+#include <sched.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <string.h>
 #include <pthread.h>
 #include <string.h>
+#include <stdbit.h>
 
 #define MAX_PLAYERS 4
 #define MAX_BOXES 4
+#define TIME_INVISIBLE 3
 
 typedef struct position {
     int x;
@@ -30,7 +34,7 @@ typedef struct box_t {
     int y;
     int theta;
     int visible;
-    int timeinv;
+    long long timeinv;
 } Box;
 
 Player players[MAX_PLAYERS];
@@ -109,6 +113,10 @@ int parse_box(char* posstr, Box* b) {
     b->theta = theta_parsed;
     b->visible = vis_parsed;
     b->timeinv = time_parsed;
+    if (b->timeinv >= TIME_INVISIBLE*10000){
+	b->timeinv = 0;
+	b->visible = 1;
+    }
     
     return (x_parsed == -1 || y_parsed == -1 || theta_parsed == -1 || vis_parsed == -1 || time_parsed == -1) ? -1 : 0;
 }
@@ -124,6 +132,8 @@ connection_handler(void *input) {
     
     dprintf(sock, "%d\n", id);
     int j = 0;
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
 	do {
 		read_size = recv(sock , client_message , 256 , 0);
@@ -142,9 +152,9 @@ connection_handler(void *input) {
         if (parse_pos(bulletStr, &players[id].bulletPos) == -1) {
             //break;
         }
+	clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 	for (int i = 0;i<MAX_BOXES;i++){
 	    if (parse_box(boxStr[i], &boxes[i]) == -1) {
-		printf(boxStr[i]);
 		printf("bad box data\n");
 		/*j++;
 		if (j>=MAX_BOXES){
@@ -152,7 +162,12 @@ connection_handler(void *input) {
 		}*/
 		break;
 	    }
+	    if (boxes[i].visible == 0){
+		boxes[i].timeinv += (uint64_t)(((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000)/100);
+		//printf("boxes[%d]: %ld\n",i,boxes[i].timeinv);
+	    }
 	}
+	clock_gettime(CLOCK_MONOTONIC_RAW, &start);
         for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
             dprintf(sock, "%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
             dprintf(sock, "%d %d %d %d\n", p, players[p].bulletPos.x, players[p].bulletPos.y, players[p].bulletPos.theta);
