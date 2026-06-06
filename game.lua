@@ -53,11 +53,11 @@ function Game:update(dt)
 		for id, box in ipairs(self.boxes) do
 			local boxStr = box:getString()
 			boxesStr = boxesStr .. ",X " .. boxStr
-			print("BOX: " .. boxStr)
+			-- print("BOX: " .. boxStr)
 		end
-		print("BOXES: " .. boxesStr)
+		-- print("BOXES: " .. boxesStr)
 		local sendStr = kartStr .. "," .. bullStr[1] .. "," .. bullStr[2] .. "," .. bullStr[3] .. boxesStr
-		print("Sent: " .. sendStr)
+		-- print("Sent: " .. sendStr)
 		self.sock:send(sendStr)
 
 		local playerRaw = self.sock:receive("*l")
@@ -87,7 +87,7 @@ function Game:update(dt)
 				end
 				local new_box = Box:new(boxInfo[2], boxInfo[3], boxInfo[4], boxInfo[5] / 10000)
 
-				print("boxRaw" .. boxRaw)
+				-- print("boxRaw" .. boxRaw)
 				--print("newbox: " .. new_box:getString())
 				table.insert(self.boxes, new_box)
 			end
@@ -123,6 +123,9 @@ function Game:update(dt)
 				) and box.visible
 			then
 				box.visible = false
+                if self.mainKart.weapon == nil then
+                    self.mainKart.weapon = box:getWeapon()
+                end
 				print("BOX COLLISION")
 			elseif not box.visible and box.timeinv >= 3 then
 				box.visible = true
@@ -153,7 +156,7 @@ function Game:draw()
 	end
 	love.graphics.points(self.mainKart.x, self.mainKart.y)
 	for id, bullet in ipairs(self.bulletCoords) do
-		print(bullet[2], bullet[3])
+		-- print(bullet[2], bullet[3])
 		if bullet[2] ~= -1 and bullet[3] ~= -1 then
 			drawing.drawRotated(bullet[2], bullet[3], bulletWidth, bulletWidth, bullet[4] / 1000, tempbu.image)
 		end

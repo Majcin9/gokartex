@@ -4,6 +4,9 @@ weaponType = { GUN = {
     }
 }
 
+screen_width = 400
+screen_height = 400
+
 Weapon = {
     type = weaponType.GUN,
     bullets = 3
@@ -21,6 +24,9 @@ function Weapon:new(type, bullets)
 end
 
 function Weapon:fire(x, y, theta)
+    if self.bullets == 0 then
+        return nil
+    end
     self.bullets = self.bullets - 1
     return Bullet:new(x, y, theta)
 end
@@ -54,6 +60,9 @@ end
 function Bullet:update()
     self.x = self.x + self.type.speed * math.cos(self.theta)
     self.y = self.y + self.type.speed * math.sin(self.theta)
+    if self.x > screen_width or self.y > screen_width or self.x < 0 or self.y < 0 then
+        return nil
+    end
     return self
 end
 
@@ -62,7 +71,7 @@ function Bullet:draw()
 end
 
 function Bullet:getPosString()
-    return self.x .. " " .. self.y .. " " .. self.theta*1000
+    return math.floor(self.x) .. " " .. math.floor(self.y) .. " " .. math.floor(self.theta*1000)
 end
 
 return {

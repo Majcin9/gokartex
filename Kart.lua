@@ -12,7 +12,7 @@ local Kart = {
 	imagepath = "assets/helmet.png",
 	image = nil,
 	weapon = nil,
-	bu = {},
+	bu = {nil, nil, nil},
 }
 
 Kart.__index = Kart
@@ -68,10 +68,6 @@ function Kart:update(dt)
 
 	if love.keyboard.isDown("e") then
 		local bu_ret = self:shoot()
-		if bu_ret ~= nil then
-			print("shooted")
-			table.insert(self.bu, bu_ret)
-		end
 	end
 
 	if self.velocity > 0 then
@@ -82,19 +78,31 @@ function Kart:update(dt)
 	self.x = self.x + self.velocity * math.cos(self.theta)
 	self.y = self.y + self.velocity * math.sin(self.theta)
 	for i, bullet in ipairs(self.bu) do
-		bullet:update()
+        if bullet ~= nil then
+            self.bu[i] = bullet:update()
+        end
 	end
 end
 
 function Kart:shoot()
-	local ret = nil
+	local bu_ret = nil
 	if self.weapon ~= nil then
-		ret = self.weapon:fire(self.x, self.x, self.theta)
-		if ret == nil then
+		bu_ret = self.weapon:fire(self.x, self.x, self.theta)
+		if bu_ret == nil then
 			self.weapon = nil
 		end
 	end
-	return ret
+    if bu_ret ~= nil then
+		for i = 1, 3 do
+			local bull = self.bu[i]
+			if bull == nil then
+                print("shooted")
+                self.bu[i] = bu_ret
+                break
+            end
+		end
+        -- table.insert(self.bu, bu_ret)
+    end
 end
 
 function Kart:radius()
@@ -109,13 +117,13 @@ function Kart:draw()
 	local newy = self.y + radius * math.sin((5 * 3.14 / 4) + self.theta)
 
 	love.graphics.draw(self.image, newx, newy, self.theta)
-	if self.bu ~= nil then
-		self.bu:draw(self.theta)
-	end
+    for i, bullet in ipairs(self.bu) do
+        bullet:draw()
+    end
 end
 
 function Kart:getPosString()
-	return self.x .. " " .. self.y .. " " .. tonumber(self.theta * 1000)
+	return math.floor(self.x) .. " " .. math.floor(self.y) .. " " .. math.floor(tonumber(self.theta * 1000))
 end
 
 return {

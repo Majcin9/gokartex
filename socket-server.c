@@ -15,7 +15,7 @@
 #define MAX_BOXES 4
 #define TIME_INVISIBLE 3
 #define MAX_BULLETS 3
-#define MAX_LENGTH 256
+#define MAX_LENGTH 1024
 
 typedef struct position {
     int x;
@@ -140,8 +140,8 @@ connection_handler(void *input) {
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
 	do {
-		read_size = recv(sock , client_message , MAX_LENGTH , 0);
-		client_message[read_size] = '\0';
+        read_size = recv(sock , client_message , MAX_LENGTH , 0);
+        client_message[read_size] = '\0';
         printf("client_message %s\n", client_message);
         char* playerStr = strtok(client_message, ",");
         char* bulletStr[MAX_BULLETS];
@@ -149,10 +149,10 @@ connection_handler(void *input) {
         for (int i = 0; i < MAX_BULLETS; i++) {
             bulletStr[i] = strtok(NULL, ",");
         }
-	char* boxStr[MAX_BOXES];
-	for (int i = 0;i<MAX_BOXES;i++){
-	    boxStr[i] = strtok(NULL,",");
-	}
+        char* boxStr[MAX_BOXES];
+        for (int i = 0;i<MAX_BOXES;i++){
+            boxStr[i] = strtok(NULL,",");
+        }
         if (parse_pos(playerStr, &players[id].playerPos) == -1) {
             printf("bad player data");
             //break;
@@ -162,22 +162,22 @@ connection_handler(void *input) {
                 //break;
             }
         }
-	clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-	for (int i = 0;i<MAX_BOXES;i++){
-	    if (parse_box(boxStr[i], &boxes[i]) == -1) {
-		printf("bad box data\n");
-		/*j++;
-		if (j>=MAX_BOXES){
-		    j=0;
-		}*/
-		break;
-	    }
-	    if (boxes[i].visible == 0){
-		boxes[i].timeinv += (uint64_t)(((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000)/100);
-		//printf("boxes[%d]: %ld\n",i,boxes[i].timeinv);
-	    }
-	}
-	clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+        for (int i = 0;i<MAX_BOXES;i++){
+            if (parse_box(boxStr[i], &boxes[i]) == -1) {
+                printf("bad box data\n");
+                /*j++;
+                  if (j>=MAX_BOXES){
+                  j=0;
+                  }*/
+                break;
+            }
+            if (boxes[i].visible == 0){
+                boxes[i].timeinv += (uint64_t)(((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000)/100);
+                //printf("boxes[%d]: %ld\n",i,boxes[i].timeinv);
+            }
+        }
+        clock_gettime(CLOCK_MONOTONIC_RAW, &start);
         for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
             dprintf(sock, "%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
             printf("%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
@@ -190,16 +190,16 @@ connection_handler(void *input) {
             dprintf(sock, "%d %d %d %d %d\n", b, boxes[b].x, boxes[b].y, boxes[b].visible,boxes[b].timeinv);
         }
         dprintf(sock, "\n");
-		
-		/* Clear the message buffer */
-		memset(client_message, 0, MAX_LENGTH);
-	} while(read_size > 2); /* Wait for empty line */
-	
-	fprintf(stderr, "Client disconnected\n"); 
-	
+
+        /* Clear the message buffer */
+        memset(client_message, 0, MAX_LENGTH);
+    } while(read_size > 2); /* Wait for empty line */
+
+    fprintf(stderr, "Client disconnected\n"); 
+
     players[id].taken = 0;
-	close(sock);
-	pthread_exit(NULL);
+    close(sock);
+    pthread_exit(NULL);
 }
 
 int

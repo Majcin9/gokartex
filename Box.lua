@@ -1,3 +1,5 @@
+weapon = require("Weapon")
+
 function bool_to_number(value)
 	return value and 1 or 0
 end
@@ -43,6 +45,10 @@ function Box:update()
 	-- 	self.timeinv = 0
 	-- 	self.timecheck = os.time()
 	-- end
+end
+
+function Box:getWeapon()
+    return weapon.Weapon:new()
 end
 
 function Box:draw()
