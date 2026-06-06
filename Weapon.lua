@@ -21,10 +21,10 @@ function Weapon:new(type, bullets)
 end
 
 function Weapon:fire(x, y, theta)
-    if self.bullets == 0 then
+    self.bullets = self.bullets - 1
+    if self.bullets < 0 then
         return nil
     end
-    self.bullets = self.bullets - 1
     return Bullet:new(x, y, theta)
 end
 
@@ -65,7 +65,6 @@ function Bullet:update(walls)
 end
 
 function Bullet:collisions(newx, newy, walls)
-    print(newx, newy, walls)
     for i, w in ipairs(walls) do
         if drawing.wallCircleCollision(w, newx, newy, self.radius) then
             return true

@@ -69,7 +69,6 @@ function Kart:update(dt, walls)
 	end
 
     -- SHOOTING
-    print("bullet timeout", self.shootTimeout)
     self:decreaseShootTimeout()
 	if love.keyboard.isDown("e") then
 		local bu_ret = self:shoot()
@@ -96,7 +95,6 @@ function Kart:update(dt, walls)
 end
 
 function Kart:collisions(newx, newy, walls)
-    print(newx, newy, walls)
     for i, w in ipairs(walls) do
         if drawing.wallCircleCollision(w, newx, newy, self:radius()) then
             return true
@@ -112,7 +110,7 @@ function Kart:shoot()
 	local bu_ret = nil
 	if self.weapon ~= nil then
 		bu_ret = self.weapon:fire(self.x, self.y, self.theta)
-		if bu_ret == nil then
+		if bu_ret == nil or self.weapon.bullets == 0 then
 			self.weapon = nil
 		end
 	end

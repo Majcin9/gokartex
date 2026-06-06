@@ -8,7 +8,6 @@ function circleCollision(x0, y0, r0, x1, y1, r1)
 end
 
 function wallCircleCollision(wall, x, y, r)
-    print(wall, x, y, r)
     local dist = wall:distance(x, y)
     return dist <= r
 end

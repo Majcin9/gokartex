@@ -13,8 +13,10 @@ Game = {
 	sock = nil,
     walls = {},
 	id = 0,
+    guiHeight = 100,
+    text = nil,
     mapHeight = 600,
-    mapWidth = 400
+    mapWidth = 800,
 }
 
 Game.__index = Game
@@ -26,20 +28,25 @@ function Game:new()
 end
 
 function Game:load()
-	self.mainKart = kart.Kart:new(100, 100)
+	self.mainKart = kart.Kart:new(100, 200)
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
 
-    table.insert(self.walls, wall.Wall:new(0, 0, self.mapWidth, 0))
-    table.insert(self.walls, wall.Wall:new(0, 0, 0, self.mapHeight))
-    table.insert(self.walls, wall.Wall:new(self.mapWidth, 0, self.mapWidth, self.mapHeight))
+    table.insert(self.walls, wall.Wall:new(0, self.guiHeight, self.mapWidth, self.guiHeight))
+    table.insert(self.walls, wall.Wall:new(0, self.guiHeight, 0, self.mapHeight))
+    table.insert(self.walls, wall.Wall:new(self.mapWidth, self.guiHeight, self.mapWidth, self.mapHeight))
     table.insert(self.walls, wall.Wall:new(0, self.mapHeight, self.mapWidth, self.mapHeight))
+    table.insert(self.walls, wall.Wall:new(400, self.guiHeight+150, 400, 450))
 
 	self.sock = socket.connect("localhost", 5000)
 
 	self.id = tonumber(self.sock:receive("*l"))
+    love.graphics.setFont (love.graphics.newFont (50))
+
+    local font = love.graphics.getFont ()
+    self.text = love.graphics.newText(font)
 end
 
 function Game:update(dt)
@@ -127,8 +134,8 @@ function Game:update(dt)
 					box.image:getWidth() / 2
 				) and box.visible
 			then
-				box.visible = false
                 if self.mainKart.weapon == nil then
+                    box.visible = false
                     self.mainKart.weapon = box:getWeapon()
                 end
 				print("BOX COLLISION")
@@ -138,11 +145,21 @@ function Game:update(dt)
 			box:update()
 		end
 
+        love.graphics.setFont (love.graphics.newFont (50))
+
+        font = love.graphics.getFont ()
+        text = love.graphics.newText(font)
 	end
 end
 
 function Game:draw()
 	-- k:draw()
+    local bullets = 0
+    if self.mainKart.weapon ~= nil then
+        bullets = self.mainKart.weapon.bullets
+    end
+    self.text:set("Bullets: " .. bullets)
+    love.graphics.draw(self.text, 10, 10)
 	local width = self.mainKart.image:getWidth()
 	local height = self.mainKart.image:getHeight()
 	-- drawing.drawRotated(100, 100, width, height, 0, self.mainKart.image)
