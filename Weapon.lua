@@ -49,7 +49,7 @@ function Bullet:new(x, y, theta, type, imagePath)
 	bull.__index = self
     bull.x = x
     bull.y = y
-    bull.theta = theta
+    bull.theta = theta or 0
     bull.type = type or weaponType.GUN
     bull.imagePath = imagePath or "assets/bullet.png"
     bull.image = love.graphics.newImage(bull.imagePath)
@@ -61,9 +61,14 @@ function Bullet:update()
     self.x = self.x + self.type.speed * math.cos(self.theta)
     self.y = self.y + self.type.speed * math.sin(self.theta)
     if self.x > screen_width or self.y > screen_width or self.x < 0 or self.y < 0 then
-        return nil
+        self.x = -1
+        self.y = -1
     end
     return self
+end
+
+function Bullet:isEmpty()
+    return self.x == -1 or self.y == -1
 end
 
 function Bullet:draw()
@@ -71,7 +76,10 @@ function Bullet:draw()
 end
 
 function Bullet:getPosString()
-    return math.floor(self.x) .. " " .. math.floor(self.y) .. " " .. math.floor(self.theta*1000)
+    if not self:isEmpty() then
+        return math.floor(self.x) .. " " .. math.floor(self.y) .. " " .. math.floor(self.theta*1000)
+    end
+    return "-1 -1 0"
 end
 
 return {

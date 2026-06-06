@@ -12,7 +12,7 @@ local Kart = {
 	imagepath = "assets/helmet.png",
 	image = nil,
 	weapon = nil,
-	bu = {nil, nil, nil},
+	bu = {Bullet:new(-1, -1), Bullet:new(-1, -1), Bullet:new(-1, -1)},
 }
 
 Kart.__index = Kart
@@ -78,7 +78,7 @@ function Kart:update(dt)
 	self.x = self.x + self.velocity * math.cos(self.theta)
 	self.y = self.y + self.velocity * math.sin(self.theta)
 	for i, bullet in ipairs(self.bu) do
-        if bullet ~= nil then
+        if not bullet:isEmpty() then
             self.bu[i] = bullet:update()
         end
 	end
@@ -95,7 +95,7 @@ function Kart:shoot()
     if bu_ret ~= nil then
 		for i = 1, 3 do
 			local bull = self.bu[i]
-			if bull == nil then
+			if bull:isEmpty() then
                 print("shooted")
                 self.bu[i] = bu_ret
                 break
@@ -117,9 +117,11 @@ function Kart:draw()
 	local newy = self.y + radius * math.sin((5 * 3.14 / 4) + self.theta)
 
 	love.graphics.draw(self.image, newx, newy, self.theta)
-    for i, bullet in ipairs(self.bu) do
-        bullet:draw()
-    end
+    -- for i, bullet in ipairs(self.bu) do
+    --     if bullet ~= nil then
+    --         bullet:draw()
+    --     end
+    -- end
 end
 
 function Kart:getPosString()

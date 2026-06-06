@@ -53,15 +53,28 @@ int parse_pos(char* posstr, pos_t* p) {
     char* y;
     char* theta;
     char* temp;
+    printf("parsing: %s\n", posstr);
     temp = strtok(posstr, " ");
-    if (temp == NULL) return -1;
+    if (temp == NULL) {
+        printf("bad temp");
+        return -1;
+    }
 
     x = strtok(NULL, " ");
-    if (x == NULL) return -1;
+    if (x == NULL) {
+        printf("bad x");
+        return -1;
+    }
     y = strtok(NULL, " ");
-    if (y == NULL) return -1;
+    if (y == NULL) {
+        printf("bad y");
+        return -1;
+    }
     theta = strtok(NULL, " ");
-    if (theta == NULL) return -1;
+    if (theta == NULL) { 
+        printf("bad theta");
+        return -1;
+    }
     int x_parsed = -1; 
     int y_parsed = -1;
     int theta_parsed = -1;
@@ -70,6 +83,7 @@ int parse_pos(char* posstr, pos_t* p) {
     y_parsed = atoi(y);
     theta_parsed = atoi(theta);
     // ignoring possibility of overflow or invalid read for now
+    printf("x: %d y: %d theta: %d\n", x_parsed, y_parsed, theta_parsed);
 
     p->x = x_parsed;
     p->y = y_parsed;
@@ -183,7 +197,7 @@ connection_handler(void *input) {
             printf("%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
             for (int i = 0; i<MAX_BULLETS; i++) {
                 dprintf(sock, "%d %d %d %d\n", p, players[p].bulletPos[i].x, players[p].bulletPos[i].y, players[p].bulletPos[i].theta);
-                printf("%d %d %d %d\n", p, players[p].bulletPos[i].x, players[p].bulletPos[i].y, players[p].bulletPos[i].theta);
+                printf("bullet: %d %d %d %d\n", p, players[p].bulletPos[i].x, players[p].bulletPos[i].y, players[p].bulletPos[i].theta);
             }
         }
         for (int b = 0; b<MAX_BOXES; b++) {
