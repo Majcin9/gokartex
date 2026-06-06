@@ -15,8 +15,8 @@ Game = {
 	id = 0,
     guiHeight = 100,
     text = nil,
-    mapHeight = 600,
-    mapWidth = 800,
+    mapWidth = 1200,
+    mapHeight = 900,
 }
 
 Game.__index = Game
@@ -28,6 +28,8 @@ function Game:new()
 end
 
 function Game:load()
+    love.window.setMode(self.mapWidth, self.mapHeight)
+    
 	self.mainKart = kart.Kart:new(100, 200)
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
