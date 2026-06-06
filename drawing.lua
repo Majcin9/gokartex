@@ -7,6 +7,12 @@ function circleCollision(x0, y0, r0, x1, y1, r1)
     return  dist <= r0+r1 and dist > 0
 end
 
+function wallCircleCollision(wall, x, y, r)
+    print(wall, x, y, r)
+    local dist = wall:distance(x, y)
+    return dist <= r
+end
+
 function drawRotated(x, y, width, height, theta, image)
     local radius = math.sqrt((width * width) + (height * height))/2
     -- angle of the straight pointing from the center to the top left corner
@@ -19,6 +25,7 @@ end
 
 return {
     pointDistance = pointDistance,
+    wallCircleCollision = wallCircleCollision,
     circleCollision = circleCollision,
     drawRotated = drawRotated
 }

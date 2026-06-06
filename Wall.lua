@@ -44,8 +44,8 @@ function Wall:distance(x, y)
         elseif y > y2 then
             return drawing.pointDistance(x, y, x2, y2) 
         end
-
     end
+    return 100000
 end
 
 function Wall:draw()

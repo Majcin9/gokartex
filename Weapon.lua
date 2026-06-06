@@ -4,9 +4,6 @@ weaponType = { GUN = {
     }
 }
 
-screen_width = 400
-screen_height = 400
-
 Weapon = {
     type = weaponType.GUN,
     bullets = 3
@@ -57,15 +54,26 @@ function Bullet:new(x, y, theta, type, imagePath)
 	return bull
 end
 
-function Bullet:update()
+function Bullet:update(walls)
     self.x = self.x + self.type.speed * math.cos(self.theta)
     self.y = self.y + self.type.speed * math.sin(self.theta)
-    if self.x > screen_width or self.y > screen_width or self.x < 0 or self.y < 0 then
+    if self:collisions(self.x, self.y, walls) then
         self.x = -1
         self.y = -1
     end
     return self
 end
+
+function Bullet:collisions(newx, newy, walls)
+    print(newx, newy, walls)
+    for i, w in ipairs(walls) do
+        if drawing.wallCircleCollision(w, newx, newy, self.radius) then
+            return true
+        end
+    end
+    return false
+end
+
 
 function Bullet:isEmpty()
     return self.x == -1 or self.y == -1

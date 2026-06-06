@@ -23,7 +23,7 @@ function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, i
 	setmetatable(o, self)
 	o.x = x or 0
 	o.y = y or 0
-	o.velocity = velocity or 0
+	o.velocity = velocity or 0.01
 	o.transitionSpeed = transitionSpeed or 5
 	o.theta = theta or 0
 	o.dtheta = dtheta or (15 / (2 * 3.14))
@@ -33,7 +33,7 @@ function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, i
 	return o
 end
 
-function Kart:update(dt)
+function Kart:update(dt, walls)
     -- MOVEMENT
 	if love.keyboard.isDown("left") then
 		self.theta = self.theta - self.dtheta * dt
@@ -80,13 +80,29 @@ function Kart:update(dt)
 	elseif self.velocity < 0 then
 		self.velocity = math.max(self.velocity, -self.MaxVelocity)
 	end
-	self.x = self.x + self.velocity * math.cos(self.theta)
-	self.y = self.y + self.velocity * math.sin(self.theta)
+    local newx = self.x + self.velocity * math.cos(self.theta)
+    local newy = self.y + self.velocity * math.sin(self.theta)
+    if not self:collisions(newx, newy, walls) then
+        self.x = newx
+        self.y = newy
+    else 
+        self.velocity = 0
+    end
 	for i, bullet in ipairs(self.bu) do
         if not bullet:isEmpty() then
-            self.bu[i] = bullet:update()
+            self.bu[i] = bullet:update(walls)
         end
 	end
+end
+
+function Kart:collisions(newx, newy, walls)
+    print(newx, newy, walls)
+    for i, w in ipairs(walls) do
+        if drawing.wallCircleCollision(w, newx, newy, self:radius()) then
+            return true
+        end
+    end
+    return false
 end
 
 function Kart:shoot()

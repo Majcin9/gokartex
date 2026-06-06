@@ -155,8 +155,9 @@ connection_handler(void *input) {
 
 	do {
         read_size = recv(sock , client_message , MAX_LENGTH , 0);
+        if (read_size == 0) break;
         client_message[read_size] = '\0';
-        printf("client_message %s\n", client_message);
+        printf("read size: %d, client_message %s\n", read_size, client_message);
         char* playerStr = strtok(client_message, ",");
         char* bulletStr[MAX_BULLETS];
         // printf("playerstr %s\n", playerStr);

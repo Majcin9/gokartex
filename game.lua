@@ -11,7 +11,10 @@ Game = {
 	mainKart = nil,
 	boxes = {},
 	sock = nil,
+    walls = {},
 	id = 0,
+    mapHeight = 600,
+    mapWidth = 400
 }
 
 Game.__index = Game
@@ -29,6 +32,11 @@ function Game:load()
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
 
+    table.insert(self.walls, wall.Wall:new(0, 0, self.mapWidth, 0))
+    table.insert(self.walls, wall.Wall:new(0, 0, 0, self.mapHeight))
+    table.insert(self.walls, wall.Wall:new(self.mapWidth, 0, self.mapWidth, self.mapHeight))
+    table.insert(self.walls, wall.Wall:new(0, self.mapHeight, self.mapWidth, self.mapHeight))
+
 	self.sock = socket.connect("localhost", 5000)
 
 	self.id = tonumber(self.sock:receive("*l"))
@@ -36,7 +44,7 @@ end
 
 function Game:update(dt)
 	-- k:update(dt)
-	self.mainKart:update(dt)
+	self.mainKart:update(dt, self.walls)
 
 	if self.sock ~= nil then
 		local kartStr = "P " .. self.mainKart:getPosString()
@@ -130,7 +138,6 @@ function Game:update(dt)
 			box:update()
 		end
 
-		local w = wall.Wall:new(10, 10, 100, 10)
 	end
 end
 
@@ -156,7 +163,10 @@ function Game:draw()
 	end
 	love.graphics.points(self.mainKart.x, self.mainKart.y)
 
-	love.graphics.line(10, 10, 100, 10)
+    for i, wall in ipairs(self.walls) do
+        wall:draw()
+    end
+
 	for id, box in ipairs(self.boxes) do
 		box:draw()
 	end
