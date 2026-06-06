@@ -12,6 +12,7 @@ local Kart = {
 	imagepath = "assets/helmet.png",
 	image = nil,
 	weapon = nil,
+    shootTimeout = 0,
 	bu = {Bullet:new(-1, -1), Bullet:new(-1, -1), Bullet:new(-1, -1)},
 }
 
@@ -33,6 +34,7 @@ function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, i
 end
 
 function Kart:update(dt)
+    -- MOVEMENT
 	if love.keyboard.isDown("left") then
 		self.theta = self.theta - self.dtheta * dt
 		if self.theta < 0 then
@@ -66,6 +68,9 @@ function Kart:update(dt)
 		end
 	end
 
+    -- SHOOTING
+    print("bullet timeout", self.shootTimeout)
+    self:decreaseShootTimeout()
 	if love.keyboard.isDown("e") then
 		local bu_ret = self:shoot()
 	end
@@ -85,24 +90,40 @@ function Kart:update(dt)
 end
 
 function Kart:shoot()
+    if self.shootTimeout ~= 0 then
+        return
+    end
 	local bu_ret = nil
 	if self.weapon ~= nil then
-		bu_ret = self.weapon:fire(self.x, self.x, self.theta)
+		bu_ret = self.weapon:fire(self.x, self.y, self.theta)
 		if bu_ret == nil then
 			self.weapon = nil
 		end
 	end
+
     if bu_ret ~= nil then
 		for i = 1, 3 do
 			local bull = self.bu[i]
 			if bull:isEmpty() then
                 print("shooted")
+                self:setShootTimeout()
                 self.bu[i] = bu_ret
                 break
             end
 		end
         -- table.insert(self.bu, bu_ret)
     end
+end
+
+function Kart:decreaseShootTimeout()
+    if self.shootTimeout == 0 then
+        return
+    end
+    self.shootTimeout = self.shootTimeout - 1
+end
+
+function Kart:setShootTimeout(d)
+    self.shootTimeout = d or 3
 end
 
 function Kart:radius()

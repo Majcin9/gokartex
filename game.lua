@@ -68,7 +68,7 @@ function Game:update(dt)
 			table.insert(self.playersCoords, playerInfo)
 			for i = 1, 3 do
 				local bulletRaw = self.sock:receive("*l")
-                print(bulletRaw)
+                -- print(bulletRaw)
 				local bulletInfo = {}
 				for number in string.gmatch(bulletRaw, "[^%s]+") do
 					table.insert(bulletInfo, tonumber(number))
@@ -149,7 +149,7 @@ function Game:draw()
 	local bulletWidth = tempbu.image:getWidth()
 	love.graphics.points(self.mainKart.x, self.mainKart.y)
 	for id, bullet in ipairs(self.bulletCoords) do
-		print(bullet[2], bullet[3], bullet[4]/1000)
+		-- print(bullet[2], bullet[3], bullet[4]/1000)
 		if bullet[2] ~= -1 and bullet[3] ~= -1 then
 			drawing.drawRotated(bullet[2], bullet[3], bulletWidth, bulletWidth, bullet[4] / 1000, tempbu.image)
 		end
