@@ -30,8 +30,11 @@ function Timer:draw()
 	if self.now - self.start >= self.round_length then
 		os.exit(0, true)
 	end
-	--love.graphics.setColor(0, 255, 0, 255)
+	if self.now - self.start >= self.round_length - 30 then
+		love.graphics.setColor(255, 0, 0, 255)
+	end
 	love.graphics.print(self:getString(), 20, 20, 0, 2, 2)
+	love.graphics.setColor(255, 255, 255, 255)
 end
 
 function Timer:getString()
