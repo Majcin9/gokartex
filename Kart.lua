@@ -4,6 +4,7 @@ drawing = require("drawing")
 local Kart = {
 	x = 0,
 	y = 0,
+    id = 0,
 	velocity = 0,
 	transitionSpeed = 5,
 	theta = 0,
@@ -18,11 +19,12 @@ local Kart = {
 
 Kart.__index = Kart
 
-function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, imagepath)
+function Kart:new(x, y, id, velocity, transitionSpeed, theta, dtheta, MaxVelocity, imagepath)
 	o = {}
 	setmetatable(o, self)
 	o.x = x or 0
 	o.y = y or 0
+    o.id = id
 	o.velocity = velocity or 0.01
 	o.transitionSpeed = transitionSpeed or 5
 	o.theta = theta or 0
@@ -33,7 +35,7 @@ function Kart:new(x, y, velocity, transitionSpeed, theta, dtheta, MaxVelocity, i
 	return o
 end
 
-function Kart:update(dt, walls)
+function Kart:update(dt, walls, bullets)
     -- MOVEMENT
 	if love.keyboard.isDown("left") then
 		self.theta = self.theta - self.dtheta * dt
@@ -81,26 +83,57 @@ function Kart:update(dt, walls)
 	end
     local newx = self.x + self.velocity * math.cos(self.theta)
     local newy = self.y + self.velocity * math.sin(self.theta)
-    if not self:collisions(newx, newy, walls) then
+    if not self:wallcollisions(newx, newy, walls) then
         self.x = newx
         self.y = newy
     else 
         self.velocity = 0
     end
+
 	for i, bullet in ipairs(self.bu) do
         if not bullet:isEmpty() then
             self.bu[i] = bullet:update(walls)
         end
 	end
+
+    local hitby = self:bulletcollisions(self.x, self.y, bullets)
+    print(hitby)
+    if hitby >= 0 then
+        self.x = 100
+        self.y = 300
+        self.velocity = 0
+        self.theta = 0
+        print("bullet collision")
+    end
+    return hitby
 end
 
-function Kart:collisions(newx, newy, walls)
+function Kart:wallcollisions(newx, newy, walls)
     for i, w in ipairs(walls) do
         if drawing.wallCircleCollision(w, newx, newy, self:radius()) then
             return true
         end
     end
     return false
+end
+
+function Kart:bulletcollisions(newx, newy, bullets)
+    local bu = weapons.Bullet:new(-100, -100)
+    local bu_radius = bu.image:getHeight()/2
+    for i, b in ipairs(bullets) do
+        print("bid", b[1], "pid", self.id, b[2], b[3])
+        if b[1] ~= self.id and drawing.circleCollision(
+                newx,
+                newy,
+                self:radius(),
+                b[2],
+                b[3],
+                bu_radius) then
+            print("BULLET COLLISION")
+            return b[1]
+        end
+    end
+    return -1
 end
 
 function Kart:shoot()

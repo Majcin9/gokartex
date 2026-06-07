@@ -19,6 +19,7 @@ Game = {
     mapWidth = 1200,
     mapHeight = 900,
 	timer = nil,
+    score = 0,
 }
 
 Game.__index = Game
@@ -32,7 +33,6 @@ end
 function Game:load()
     love.window.setMode(self.mapWidth, self.mapHeight)
     
-	self.mainKart = kart.Kart:new(100, 200)
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
@@ -48,8 +48,10 @@ function Game:load()
     table.insert(self.walls, wall.Wall:new(self.mapWidth*2/3, self.mapHeight*2/3, self.mapWidth*2/3, self.mapHeight*2/3 + 150))
 
 	self.sock = socket.connect("localhost", 5000)
-
 	self.id = tonumber(self.sock:receive("*l"))
+
+	self.mainKart = kart.Kart:new(100, 200, self.id)
+
     love.graphics.setFont (love.graphics.newFont (50))
 
     local font = love.graphics.getFont ()
@@ -58,7 +60,8 @@ end
 
 function Game:update(dt)
 	-- k:update(dt)
-	self.mainKart:update(dt, self.walls)
+	local hitby = self.mainKart:update(dt, self.walls, self.bulletCoords)
+    -- print("hitby", hitby)
 
 	if self.sock ~= nil then
 		local kartStr = "P " .. self.mainKart:getPosString()
@@ -74,7 +77,7 @@ function Game:update(dt)
 			-- print("BOX: " .. boxStr)
 		end
 		-- print("BOXES: " .. boxesStr)
-		local sendStr = kartStr .. "," .. bullStr[1] .. "," .. bullStr[2] .. "," .. bullStr[3] .. boxesStr
+		local sendStr = kartStr .. "," .. bullStr[1] .. "," .. bullStr[2] .. "," .. bullStr[3] .. boxesStr .. "," .. hitby
 		-- print("Sent: " .. sendStr)
 		self.sock:send(sendStr)
 
@@ -88,31 +91,36 @@ function Game:update(dt)
 				table.insert(playerInfo, tonumber(number))
 			end
 			table.insert(self.playersCoords, playerInfo)
+
+            if playerInfo[1] == self.id and playerInfo[5] ~= self.score then
+                self.score = playerInfo[5]
+                print("HIT SOMEONE")
+            end
+
 			for i = 1, 3 do
 				local bulletRaw = self.sock:receive("*l")
                 -- print(bulletRaw)
-				local bulletInfo = {}
+                local bulletInfo = {}
 				for number in string.gmatch(bulletRaw, "[^%s]+") do
 					table.insert(bulletInfo, tonumber(number))
 				end
 				table.insert(self.bulletCoords, bulletInfo)
 			end
-			for i = 0, 3 do
-				local boxRaw = self.sock:receive("*l")
-				local boxInfo = {}
-				for number in string.gmatch(boxRaw, "[^%s]+") do
-					table.insert(boxInfo, tonumber(number))
-					--print("BoxInfo number " .. tonumber(number) .. "! " .. number)
-                end
-                print(boxInfo[5])
-				local new_box = Box:new(boxInfo[2], boxInfo[3], boxInfo[4], boxInfo[5] / 10000)
-
-				-- print("boxRaw" .. boxRaw)
-				--print("newbox: " .. new_box:getString())
-				table.insert(self.boxes, new_box)
-			end
 			playerRaw = self.sock:receive("*l")
 		end
+        for i = 0, 3 do
+            local boxRaw = self.sock:receive("*l")
+            local boxInfo = {}
+            for number in string.gmatch(boxRaw, "[^%s]+") do
+                table.insert(boxInfo, tonumber(number))
+                --print("BoxInfo number " .. tonumber(number) .. "! " .. number)
+            end
+            -- print(boxInfo[5])
+            local new_box = Box:new(boxInfo[2], boxInfo[3], boxInfo[4], boxInfo[5] / 10000)
+
+            --print("newbox: " .. new_box:getString())
+            table.insert(self.boxes, new_box)
+        end
 	end
 
 	local tempbu = Bullet:new(0, 0, 0)
@@ -128,7 +136,6 @@ function Game:update(dt)
 					tempbu.image:getWidth() / 2
 				)
 			then
-				print("BULLET COLLISION")
 			end
 		end
 		for id, box in ipairs(self.boxes) do
@@ -166,7 +173,7 @@ function Game:draw()
     if self.mainKart.weapon ~= nil then
         bullets = self.mainKart.weapon.bullets
     end
-    self.text:set("Bullets: " .. bullets)
+    self.text:set("Bullets: " .. bullets.. " Score: " .. self.score)
     love.graphics.draw(self.text, 10, 10)
 	local width = self.mainKart.image:getWidth()
 	local height = self.mainKart.image:getHeight()
@@ -181,7 +188,7 @@ function Game:draw()
 	local bulletWidth = tempbu.image:getWidth()
 	love.graphics.points(self.mainKart.x, self.mainKart.y)
 	for id, bullet in ipairs(self.bulletCoords) do
-		-- print(bullet[2], bullet[3], bullet[4]/1000)
+		-- print(bullet[1], bullet[2], bullet[3], bullet[4]/1000)
 		if bullet[2] ~= -1 and bullet[3] ~= -1 then
 			drawing.drawRotated(bullet[2], bullet[3], bulletWidth, bulletWidth, bullet[4] / 1000, tempbu.image)
 		end

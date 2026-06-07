@@ -27,6 +27,7 @@ typedef struct player_t {
     int id;
     pos_t playerPos;
     pos_t bulletPos[MAX_BULLETS];
+    int score;
     int taken;
 } Player;
 
@@ -165,8 +166,13 @@ connection_handler(void *input) {
             bulletStr[i] = strtok(NULL, ",");
         }
         char* boxStr[MAX_BOXES];
-        for (int i = 0;i<MAX_BOXES;i++){
+        for (int i = 0;i<MAX_BOXES;i++) {
             boxStr[i] = strtok(NULL,",");
+        }
+        char* hitby = strtok(NULL, ",");
+        int hitbyID = atoi(hitby);
+        if (hitbyID > -1) {
+            players[hitbyID].score++;
         }
         if (parse_pos(playerStr, &players[id].playerPos) == -1) {
             printf("bad player data");
@@ -177,6 +183,7 @@ connection_handler(void *input) {
                 //break;
             }
         }
+
         clock_gettime(CLOCK_MONOTONIC_RAW, &end);
         for (int i = 0;i<MAX_BOXES;i++){
             if (parse_box(boxStr[i], &boxes[i]) == -1) {
@@ -194,17 +201,18 @@ connection_handler(void *input) {
         }
         clock_gettime(CLOCK_MONOTONIC_RAW, &start);
         for (int p = 0; p<MAX_PLAYERS && players[p].taken == 1; p++) {
-            dprintf(sock, "%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
+            dprintf(sock, "%d %d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta, players[p].score);
             printf("%d %d %d %d\n", p, players[p].playerPos.x, players[p].playerPos.y, players[p].playerPos.theta);
             for (int i = 0; i<MAX_BULLETS; i++) {
                 dprintf(sock, "%d %d %d %d\n", p, players[p].bulletPos[i].x, players[p].bulletPos[i].y, players[p].bulletPos[i].theta);
                 printf("bullet: %d %d %d %d\n", p, players[p].bulletPos[i].x, players[p].bulletPos[i].y, players[p].bulletPos[i].theta);
             }
         }
+        dprintf(sock,"\n");
         for (int b = 0; b<MAX_BOXES; b++) {
             dprintf(sock, "%d %d %d %d %d\n", b, boxes[b].x, boxes[b].y, boxes[b].visible,boxes[b].timeinv);
         }
-        dprintf(sock, "\n");
+        // dprintf(sock, "\n");
 
         /* Clear the message buffer */
         memset(client_message, 0, MAX_LENGTH);
