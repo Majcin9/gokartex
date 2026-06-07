@@ -40,7 +40,9 @@ function Game:load()
     table.insert(self.walls, wall.Wall:new(0, self.guiHeight, 0, self.mapHeight))
     table.insert(self.walls, wall.Wall:new(self.mapWidth, self.guiHeight, self.mapWidth, self.mapHeight))
     table.insert(self.walls, wall.Wall:new(0, self.mapHeight, self.mapWidth, self.mapHeight))
-    table.insert(self.walls, wall.Wall:new(400, self.guiHeight+150, 400, 450))
+    table.insert(self.walls, wall.Wall:new(self.mapWidth/2, self.guiHeight+150, self.mapWidth/2, 450))
+    table.insert(self.walls, wall.Wall:new(self.mapWidth/3, self.mapHeight*2/3, self.mapWidth/3, self.mapHeight*2/3 + 150))
+    table.insert(self.walls, wall.Wall:new(self.mapWidth*2/3, self.mapHeight*2/3, self.mapWidth*2/3, self.mapHeight*2/3 + 150))
 
 	self.sock = socket.connect("localhost", 5000)
 
@@ -98,7 +100,8 @@ function Game:update(dt)
 				for number in string.gmatch(boxRaw, "[^%s]+") do
 					table.insert(boxInfo, tonumber(number))
 					--print("BoxInfo number " .. tonumber(number) .. "! " .. number)
-				end
+                end
+                print(boxInfo[5])
 				local new_box = Box:new(boxInfo[2], boxInfo[3], boxInfo[4], boxInfo[5] / 10000)
 
 				-- print("boxRaw" .. boxRaw)
