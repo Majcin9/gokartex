@@ -42,7 +42,7 @@ typedef struct box_t {
 
 Player players[MAX_PLAYERS];
 Box boxes[MAX_BOXES];
-
+time_t to_send_time;
 
 struct connection_input {
     int sockfd;
@@ -153,6 +153,7 @@ connection_handler(void *input) {
     int j = 0;
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+        dprintf(sock, "%d\n",to_send_time);
 
 	do {
         read_size = recv(sock , client_message , MAX_LENGTH , 0);
@@ -227,6 +228,7 @@ connection_handler(void *input) {
 
 int
 main(int argc, char *argv[]) {
+        to_send_time = time(NULL);
 	int listenfd = 0, connfd = 0;
 	struct sockaddr_in serv_addr; 
 
