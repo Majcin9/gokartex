@@ -16,6 +16,7 @@ Game = {
 	id = 0,
 	guiHeight = 100,
 	text = nil,
+    winnertext = nil,
 	mapWidth = 1200,
 	mapHeight = 900,
 	timer = nil,
@@ -64,11 +65,12 @@ function Game:load()
 	self.mainKart = kart.Kart:new(100, 200, self.id)
 
 	local time_recieved = tonumber(self.sock:receive("*l"))
-	self.timer = Timer:new(10, time_recieved)
+	self.timer = Timer:new(15, time_recieved)
 	love.graphics.setFont(love.graphics.newFont(50))
 
 	local font = love.graphics.getFont()
 	self.text = love.graphics.newText(font)
+    self.winnertext = love.graphics.newText(font)
 end
 
 function Game:update(dt)
@@ -117,7 +119,6 @@ function Game:update(dt)
 
 			if playerInfo[1] == self.id and playerInfo[5] ~= self.score then
 				self.score = playerInfo[5]
-				print("HIT SOMEONE")
 			end
 
 			for i = 1, 3 do
@@ -145,6 +146,13 @@ function Game:update(dt)
 			--print("newbox: " .. new_box:getString())
 			table.insert(self.boxes, new_box)
 		end
+	end
+
+	if self.timer:update() == 1 then
+        -- moved to game:draw()
+        return
+		-- while true do
+		-- end
 	end
 
 	local tempbu = Bullet:new(0, 0, 0)
@@ -189,16 +197,6 @@ function Game:update(dt)
 		font = love.graphics.getFont()
 		text = love.graphics.newText(font)
 	end
-	if self.timer:update() == 1 then
-		local text = ""
-		for index, playerInfo in ipairs(self.playersCoords) do
-			text = text .. playerInfo[1] .. ": " .. playerInfo[5] .. "\n"
-		end
-		print(text)
-		love.graphics.print(text, 40, 40, 0, 1, 1)
-		while true do
-		end
-	end
 end
 
 function Game:draw()
@@ -235,6 +233,26 @@ function Game:draw()
 
 	for id, box in ipairs(self.boxes) do
 		box:draw()
+	end
+
+	if self.timer:update() == 1 then
+		local text = "SCORES: \n"
+        local winner = {0,0}
+		for index, playerInfo in ipairs(self.playersCoords) do
+			text = text .. playerInfo[1] .. ": " .. playerInfo[5] .. "\n"
+            if playerInfo[5] > winner[2] then
+                winner = {playerInfo[1], playerInfo[5]}
+            end
+		end
+        text = text .. "WINNER: " .. winner[1]
+		-- print(text)
+		-- love.graphics.print(text, 40, 40, 0, 1, 1)
+        
+        self.winnertext:set(text)
+        love.graphics.draw(self.winnertext, self.mapWidth/3, self.guiHeight)
+        
+		-- while true do
+		-- end
 	end
 	--self.timer:draw()
 end

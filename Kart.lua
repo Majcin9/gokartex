@@ -97,7 +97,6 @@ function Kart:update(dt, walls, bullets)
 	end
 
     local hitby = self:bulletcollisions(self.x, self.y, bullets)
-    print(hitby)
     if hitby >= 0 then
         self.x = 100
         self.y = 300
@@ -121,7 +120,7 @@ function Kart:bulletcollisions(newx, newy, bullets)
     local bu = weapons.Bullet:new(-100, -100)
     local bu_radius = bu.image:getHeight()/2
     for i, b in ipairs(bullets) do
-        print("bid", b[1], "pid", self.id, b[2], b[3])
+        -- print("bid", b[1], "pid", self.id, b[2], b[3])
         if b[1] ~= self.id and drawing.circleCollision(
                 newx,
                 newy,
