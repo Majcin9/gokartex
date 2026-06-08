@@ -136,8 +136,17 @@ connection_handler(void *input) {
     players[id].taken = 1;
     dprintf(sock, "%d\n", id);
     int j = 0;
-    struct timespec start, end;
+    struct timespec start, end,roundstart;
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    /*read_size = recv(sock , client_message , MAX_LENGTH , 0);
+
+    if (read_size > 2){
+	client_message[read_size] = '\0';
+	clock_gettime(CLOCK_MONOTONIC_RAW, &roundstart);
+	uint64_t to_send_time = (uint64_t)((roundstart.tv_sec * 1000000 + roundstart.tv_nsec)/100);
+        dprintf(sock, "%d\n",to_send_time );
+
+    }*/
 
 	do {
 		read_size = recv(sock , client_message , MAX_LENGTH , 0);

@@ -30,11 +30,13 @@ function Game:load()
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
 	table.insert(self.boxes, box.Box:new(nil))
-	self.timer = Timer:new(180)
 
 	self.sock = socket.connect("localhost", 5000)
 
 	self.id = tonumber(self.sock:receive("*l"))
+	--local time_recieved = tonumber(self.sock:receive("*l"))
+	--self.timer = Timer:new(180, tonumber(time_recieved))
+	self.timer = Timer:new(180)
 end
 
 function Game:update(dt)

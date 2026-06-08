@@ -4,11 +4,11 @@ Timer = {
 	round_length = 300,
 }
 Timer.__index = Timer
-function Timer:new(round_length)
+function Timer:new(round_length, start)
 	local o = {}
 	setmetatable(o, self)
 	o.__index = self
-	o.start = os.time()
+	o.start = start or os.time()
 	o.now = os.time()
 	o.round_length = round_length or 150
 	return o
