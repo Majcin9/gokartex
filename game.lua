@@ -6,6 +6,8 @@ drawing = require("drawing")
 wall = require("Wall")
 timer = require("Timer")
 
+helmetPaths = {"helmet.png", "helmet2.png", "helmet3.png", "helmet4.png"}
+
 Game = {
 	playersCoords = {},
 	bulletCoords = {},
@@ -21,6 +23,7 @@ Game = {
 	mapHeight = 900,
 	timer = nil,
 	score = 0,
+    helmetImages = {}
 }
 
 Game.__index = Game
@@ -71,11 +74,14 @@ function Game:load()
 	local font = love.graphics.getFont()
 	self.text = love.graphics.newText(font)
     self.winnertext = love.graphics.newText(font)
+    for id, path in ipairs(helmetPaths) do
+        table.insert(self.helmetImages, love.graphics.newImage("assets/"..path))
+    end
 end
 
 function Game:update(dt)
 	-- k:update(dt)
-	local hitby = self.mainKart:update(dt, self.walls, self.bulletCoords)
+	local hitby = self.mainKart:update(dt, self.walls, self.bulletCoords, timerval)
 	-- print("hitby", hitby)
 
 	local playerInfos = {}
@@ -150,53 +156,34 @@ function Game:update(dt)
 
 	if self.timer:update() == 1 then
         -- moved to game:draw()
+        self.mainKart.weapon = nil
         return
 		-- while true do
 		-- end
 	end
 
-	local tempbu = Bullet:new(0, 0, 0)
-	for id, bullet in ipairs(self.bulletCoords) do
-		if bullet[1] ~= self.id then
-			if
-				circleCollision(
-					self.mainKart.x,
-					self.mainKart.y,
-					self.mainKart.image:getWidth() / 2,
-					bullet[2],
-					bullet[3],
-					tempbu.image:getWidth() / 2
-				)
-			then
-			end
-		end
-		for id, box in ipairs(self.boxes) do
-			if
-				circleCollision(
-					self.mainKart.x,
-					self.mainKart.y,
-					self.mainKart.image:getWidth() / 2,
-					box.x,
-					box.y,
-					box.image:getWidth() / 2
-				) and box.visible
-			then
-				if self.mainKart.weapon == nil then
-					box.visible = false
-					self.mainKart.weapon = box:getWeapon()
-				end
-				print("BOX COLLISION")
-			elseif not box.visible and box.timeinv >= 3 then
-				box.visible = true
-			end
-			box:update()
-		end
+    for id, box in ipairs(self.boxes) do
+        if
+            circleCollision(
+            self.mainKart.x,
+            self.mainKart.y,
+            self.mainKart.image:getWidth() / 2,
+            box.x,
+            box.y,
+            box.image:getWidth() / 2
+            ) and box.visible
+            then
+                if self.mainKart.weapon == nil then
+                    box.visible = false
+                    self.mainKart.weapon = box:getWeapon()
+                end
+                print("BOX COLLISION")
+            elseif not box.visible and box.timeinv >= 3 then
+                box.visible = true
+            end
+            box:update()
+        end
 
-		love.graphics.setFont(love.graphics.newFont(50))
-
-		font = love.graphics.getFont()
-		text = love.graphics.newText(font)
-	end
 end
 
 function Game:draw()
@@ -207,13 +194,15 @@ function Game:draw()
 	end
 	self.text:set("Bullets: " .. bullets .. " Score: " .. self.score .. " Timer: " .. self.timer:getString())
 	love.graphics.draw(self.text, 10, 10)
+    love.graphics.draw(self.helmetImages[self.id+1], self.mapWidth-self.mainKart:radius()*2, 0)
+
 	local width = self.mainKart.image:getWidth()
 	local height = self.mainKart.image:getHeight()
 	-- drawing.drawRotated(100, 100, width, height, 0, self.mainKart.image)
 
 	for id, player in ipairs(self.playersCoords) do
 		-- love.graphics.draw(self.mainKart.image, player[2], player[3], player[4]/1000)
-		drawing.drawRotated(player[2], player[3], width, height, player[4] / 1000, self.mainKart.image)
+		drawing.drawRotated(player[2], player[3], width, height, player[4] / 1000, self.helmetImages[player[1]+1])
 	end
 
 	local tempbu = Bullet:new(0, 0, 0)

@@ -1,6 +1,8 @@
 weapons = require("Weapon")
 drawing = require("drawing")
 
+helmetPaths = {"helmet.png", "helmet2.png", "helmet3.png", "helmet4.png"}
+
 local Kart = {
 	x = 0,
 	y = 0,
@@ -25,13 +27,14 @@ function Kart:new(x, y, id, velocity, transitionSpeed, theta, dtheta, MaxVelocit
 	o.x = x or 0
 	o.y = y or 0
     o.id = id
+    o.imagepath = "assets/" .. helmetPaths[id+1]
 	o.velocity = velocity or 0.01
 	o.transitionSpeed = transitionSpeed or 5
 	o.theta = theta or 0
 	o.dtheta = dtheta or (15 / (2 * 3.14))
 	o.MaxVelocity = MaxVelocity or 10
 	o.weapon = weapons.Weapon:new()
-	o.image = love.graphics.newImage(imagepath or "assets/helmet.png")
+	o.image = love.graphics.newImage(o.imagepath or "assets/helmet.png")
 	return o
 end
 
@@ -174,21 +177,6 @@ end
 
 function Kart:radius()
 	return self.image:getWidth() / 2 --because texture is a square
-end
-
-function Kart:draw()
-	local width = self.image:getWidth()
-	local height = self.image:getHeight()
-	local radius = math.sqrt((width * width) + (height * height)) / 2
-	local newx = self.x + radius * math.cos((5 * 3.14 / 4) + self.theta)
-	local newy = self.y + radius * math.sin((5 * 3.14 / 4) + self.theta)
-
-	love.graphics.draw(self.image, newx, newy, self.theta)
-    -- for i, bullet in ipairs(self.bu) do
-    --     if bullet ~= nil then
-    --         bullet:draw()
-    --     end
-    -- end
 end
 
 function Kart:getPosString()
